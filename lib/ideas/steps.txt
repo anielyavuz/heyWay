@@ -1,7 +1,7 @@
 ## HeyWay Delivery Roadmap
 
 ### Phase 0 – Foundations
-- [ ] Initialize Flutter project structure and configure Firebase project (Firestore, Storage, Authentication).
+- [x] Initialize Flutter project structure and configure Firebase project (Firestore, Storage, Authentication).
 - [ ] Enable anonymous auth for quick prototype sign-in and set default security rules to deny writes by unauthenticated users.
 - [ ] Scaffold core navigation: bottom tabs (Home, Account, Discover placeholder).
 - [ ] Implement ThemeProvider, app theme switch, and persist preference locally.
@@ -53,4 +53,3 @@
 - [ ] Harden security rules with simulator tests and add regression test suite in CI.
 - [ ] Prepare App Store & Play Store deployment assets, privacy policy, and crash reporting (Crashlytics).
 - [ ] Establish business/creator onboarding workflows and partnerships programs.
-
