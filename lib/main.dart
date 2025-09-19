@@ -25,12 +25,6 @@ class MyApp extends StatelessWidget {
       create: (context) => ThemeProvider()..loadThemePreference(),
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          if (!themeProvider.isInitialized) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
           return MaterialApp(
             title: 'Pulse',
             theme: AppTheme.lightTheme,
@@ -38,7 +32,9 @@ class MyApp extends StatelessWidget {
             themeMode: themeProvider.isDarkTheme
                 ? ThemeMode.dark
                 : ThemeMode.light,
-            home: const AuthGate(),
+            home: themeProvider.isInitialized
+                ? const AuthGate()
+                : const ThemeLoadingScreen(),
           );
         },
       ),
@@ -107,5 +103,14 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
     );
+  }
+}
+
+class ThemeLoadingScreen extends StatelessWidget {
+  const ThemeLoadingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

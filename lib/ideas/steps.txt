@@ -5,13 +5,15 @@
 - [x] Enable anonymous auth for quick prototype sign-in and set default security rules to deny writes by unauthenticated users.
 - [x] Scaffold core navigation: bottom tabs (Home, Account, Discover placeholder).
 - [x] Implement ThemeProvider, app theme switch, and persist preference locally.
-- [ ] Wire Firebase initialization with `firebase_core` and confirm anonymous login flow.
+- [x] Wire Firebase initialization with `firebase_core` and confirm anonymous login flow.
 - [ ] Define core terminology (Pulse) and update copywriting guidelines so UI messaging stays consistent.
 
 ### Phase 1 – Core Pulse Experience
 - [ ] Design Firestore collections (`users`, `venues`, `pulses`) aligned with firebase.txt spec.
 - [ ] Build location permission request & geolocation service (using `geolocator` or similar).
 - [ ] Implement venue search + nearby list using sample data; integrate Firestore geohash queries later.
+- [ ] Wire up MapLibre GL with OpenStreetMap tiles for the discovery map and test marker rendering.
+- [ ] Validate tile usage limits and configure style/theme files for MapLibre to match Pulse branding.
 - [ ] Integrate Foursquare Places API (free tier) for venue metadata during prototyping.
 - [ ] Stub abstraction layer so alternate POI providers can be swapped without core refactor.
 - [ ] Create Pulse composer (select venue, mood, caption, optional photo upload to Storage).
