@@ -1,4 +1,4 @@
-# HeyWay - Navigasyon ve Sosyal Medya Uygulaması
+# Pulse - Navigasyon ve Sosyal Medya Uygulaması
 
 ## Proje Amacı
 Google Maps benzeri navigasyon özelliklerine sahip, kullanıcıların cafe, restoran, otel gibi mekanları keşfedip sosyal etkileşimde bulunabileceği bir mobil uygulama geliştirmek.

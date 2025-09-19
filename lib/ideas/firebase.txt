@@ -1,4 +1,4 @@
-## HeyWay Firebase Design
+## Pulse Firebase Design
 
 ### Guiding Goals
 - Safeguard user privacy by default while keeping writes confined to the data owner or trusted Cloud Functions.
@@ -82,4 +82,3 @@
 ### Monitoring
 - Export Firestore usage metrics to BigQuery or Monitoring for anomaly alerts (unexpected write spikes).
 - Track Cloud Function invoices and set budget alerts so any runaway usage is caught early.
-

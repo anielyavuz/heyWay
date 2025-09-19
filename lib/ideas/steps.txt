@@ -1,10 +1,10 @@
-## HeyWay Delivery Roadmap
+## Pulse Delivery Roadmap
 
 ### Phase 0 – Foundations
 - [x] Initialize Flutter project structure and configure Firebase project (Firestore, Storage, Authentication).
-- [ ] Enable anonymous auth for quick prototype sign-in and set default security rules to deny writes by unauthenticated users.
-- [ ] Scaffold core navigation: bottom tabs (Home, Account, Discover placeholder).
-- [ ] Implement ThemeProvider, app theme switch, and persist preference locally.
+- [x] Enable anonymous auth for quick prototype sign-in and set default security rules to deny writes by unauthenticated users.
+- [x] Scaffold core navigation: bottom tabs (Home, Account, Discover placeholder).
+- [x] Implement ThemeProvider, app theme switch, and persist preference locally.
 - [ ] Wire Firebase initialization with `firebase_core` and confirm anonymous login flow.
 - [ ] Define core terminology (Pulse) and update copywriting guidelines so UI messaging stays consistent.
 

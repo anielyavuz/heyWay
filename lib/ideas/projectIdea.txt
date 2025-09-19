@@ -1,10 +1,10 @@
-## HeyWay Differentiation Thoughts
+## Pulse Differentiation Thoughts
 
 ### Phase 1 – Launch Foundations
 - EN: Embrace lightweight privacy controls (per-check-in visibility, temporary location sharing) to build trust with cautious users who abandoned always-on location apps.
   TR: Her Pulse için görünürlük ve geçici konum paylaşımı gibi hafif gizlilik kontrolleri sunarak sürekli konum uygulamalarını terk eden temkinli kullanıcılarla güven inşa et.
-- EN: Integrate with broader social platforms via shareable stories or badges, but keep HeyWay’s core value focused on real-world exploration, not abstract gamification.
-  TR: Paylaşılabilir hikâyeler veya rozetler üzerinden geniş sosyal platformlarla entegre ol; ancak HeyWay'in temel değerini soyut oyunlaştırma yerine gerçek dünya keşfine odaklı tut.
+- EN: Integrate with broader social platforms via shareable stories or badges, but keep Pulse’s core value focused on real-world exploration, not abstract gamification.
+  TR: Paylaşılabilir hikâyeler veya rozetler üzerinden geniş sosyal platformlarla entegre ol; ancak Pulse'ın temel değerini soyut oyunlaştırma yerine gerçek dünya keşfine odaklı tut.
 
 ### Phase 2 – Social Growth Loop
 - EN: Lean into collaborative exploration: let small friend groups plan outings together (shared checklists, polls) so Pulses are part of the planning flow, not the end result.
@@ -25,4 +25,3 @@
 ### Terminology Notes
 - EN: Pulse: short, energetic marker that signals a fresh moment or discovery.
   TR: Pulse: taze bir anı ya da keşfi işaretleyen kısa, enerjik bir belirti.
-
