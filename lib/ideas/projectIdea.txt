@@ -1,0 +1,28 @@
+## HeyWay Differentiation Thoughts
+
+### Phase 1 – Launch Foundations
+- EN: Embrace lightweight privacy controls (per-check-in visibility, temporary location sharing) to build trust with cautious users who abandoned always-on location apps.
+  TR: Her Pulse için görünürlük ve geçici konum paylaşımı gibi hafif gizlilik kontrolleri sunarak sürekli konum uygulamalarını terk eden temkinli kullanıcılarla güven inşa et.
+- EN: Integrate with broader social platforms via shareable stories or badges, but keep HeyWay’s core value focused on real-world exploration, not abstract gamification.
+  TR: Paylaşılabilir hikâyeler veya rozetler üzerinden geniş sosyal platformlarla entegre ol; ancak HeyWay'in temel değerini soyut oyunlaştırma yerine gerçek dünya keşfine odaklı tut.
+
+### Phase 2 – Social Growth Loop
+- EN: Lean into collaborative exploration: let small friend groups plan outings together (shared checklists, polls) so Pulses are part of the planning flow, not the end result.
+  TR: İşbirliğine dayalı keşfi öne çıkar: küçük arkadaş gruplarının birlikte plan yapmasına izin ver (paylaşılan kontrol listeleri, anketler); Pulse'lar son sonuç değil planlama sürecinin parçası olsun.
+- EN: Reward meaningful contributions, not just frequency: highlight detailed tips, photos, or accessibility info and surface them in venue profiles to avoid the check-in burnout that hurt Swarm.
+  TR: Sadece sıklığı değil anlamlı katkıları ödüllendir; detaylı ipuçlarını, fotoğrafları veya erişilebilirlik bilgilerini öne çıkar ve mekan profillerinde sergileyerek Swarm'ı yıpratan check-in yorgunluğundan kaçın.
+- EN: Introduce creator/venue tools (featured guides, partner badges) to attract businesses and influencers, creating fresh content that keeps the feed lively.
+  TR: İşletmeleri ve influencer'ları çekmek için öne çıkan rehberler, partner rozetleri gibi üretici/mekan araçları sun; böylece akışı canlı tutacak taze içerik üret.
+
+### Phase 3 – Intelligent & Adaptive Experience
+- EN: Personalize discovery using context (time of day, weather, past behavior) and privacy preferences so the app feels useful even without constant social engagement.
+  TR: Keşfi bağlama (günün saati, hava durumu, geçmiş davranış) ve gizlilik tercihlerine göre kişiselleştir; böylece sürekli sosyal etkileşim olmasa bile uygulama faydalı hissetsin.
+- EN: Measure success beyond daily Pulse counts—track how often users act on recommendations—and tune algorithms to amplify high-signal actions.
+  TR: Başarıyı günlük Pulse sayılarının ötesinde ölç; kullanıcıların önerilere ne sıklıkta tepki verdiğini takip et ve yüksek sinyalli aksiyonları öne çıkarmak için algoritmaları ayarla.
+- EN: Consider an AI assistant that suggests meetups or itineraries using current location + friend availability, giving a modern differentiator beyond Swarm’s badge system.
+  TR: Güncel konum ve arkadaş uygunluğunu kullanarak buluşma veya rota öneren bir yapay zekâ asistanı düşün; bu, Swarm'ın rozet sisteminin ötesinde modern bir fark sağlar.
+
+### Terminology Notes
+- EN: Pulse: short, energetic marker that signals a fresh moment or discovery.
+  TR: Pulse: taze bir anı ya da keşfi işaretleyen kısa, enerjik bir belirti.
+

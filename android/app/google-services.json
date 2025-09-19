@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "782705023008",
+    "project_id": "heywayapp-d7811",
+    "storage_bucket": "heywayapp-d7811.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:782705023008:android:c5208d28dbcbf018b50445",
+        "android_client_info": {
+          "package_name": "com.example.heyway"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVsMsR-Yx_4F217p4TbxUz9qiK2Drb0e4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

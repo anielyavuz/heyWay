@@ -1,0 +1,813 @@
+{
+    "places": [
+      {
+        "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc",
+        "id": "ChIJV4Igyh_HyhQR5V_VVmQptOc",
+        "types": [
+          "gym",
+          "sports_complex",
+          "sports_activity_location",
+          "health",
+          "point_of_interest",
+          "establishment"
+        ],
+        "nationalPhoneNumber": "0533 167 87 83",
+        "internationalPhoneNumber": "+90 533 167 87 83",
+        "formattedAddress": "Bağlarbaşı, Öz Fırat Sok. No:12, 34844 Maltepe/İstanbul, Türkiye",
+        "addressComponents": [
+          {
+            "longText": "12",
+            "shortText": "12",
+            "types": [
+              "street_number"
+            ],
+            "languageCode": "tr-TR"
+          },
+          {
+            "longText": "Öz Fırat Sokağı",
+            "shortText": "Öz Fırat Sok.",
+            "types": [
+              "route"
+            ],
+            "languageCode": "tr"
+          },
+          {
+            "longText": "Bağlarbaşı",
+            "shortText": "Bağlarbaşı",
+            "types": [
+              "administrative_area_level_4",
+              "political"
+            ],
+            "languageCode": "tr"
+          },
+          {
+            "longText": "Maltepe",
+            "shortText": "Maltepe",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ],
+            "languageCode": "tr"
+          },
+          {
+            "longText": "İstanbul",
+            "shortText": "İstanbul",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ],
+            "languageCode": "tr"
+          },
+          {
+            "longText": "Türkiye",
+            "shortText": "TR",
+            "types": [
+              "country",
+              "political"
+            ],
+            "languageCode": "tr"
+          },
+          {
+            "longText": "34844",
+            "shortText": "34844",
+            "types": [
+              "postal_code"
+            ],
+            "languageCode": "tr-TR"
+          }
+        ],
+        "plusCode": {
+          "globalCode": "8GGFW4CQ+FF",
+          "compoundCode": "W4CQ+FF Maltepe/İstanbul, Türkiye"
+        },
+        "location": {
+          "latitude": 40.921237,
+          "longitude": 29.138702000000002
+        },
+        "viewport": {
+          "low": {
+            "latitude": 40.9199278697085,
+            "longitude": 29.137306219708503
+          },
+          "high": {
+            "latitude": 40.9226258302915,
+            "longitude": 29.140004180291502
+          }
+        },
+        "rating": 4.7,
+        "googleMapsUri": "https://maps.google.com/?cid=16696015229499564005&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA",
+        "websiteUri": "https://instagram.com/fizyoperaklinikpilates?igshid=MzRlODBiNWFlZA==",
+        "regularOpeningHours": {
+          "openNow": true,
+          "periods": [
+            {
+              "open": {
+                "day": 0,
+                "hour": 8,
+                "minute": 0
+              },
+              "close": {
+                "day": 0,
+                "hour": 18,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 1,
+                "hour": 7,
+                "minute": 0
+              },
+              "close": {
+                "day": 1,
+                "hour": 22,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 2,
+                "hour": 7,
+                "minute": 0
+              },
+              "close": {
+                "day": 2,
+                "hour": 22,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 3,
+                "hour": 7,
+                "minute": 0
+              },
+              "close": {
+                "day": 3,
+                "hour": 22,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 4,
+                "hour": 7,
+                "minute": 0
+              },
+              "close": {
+                "day": 4,
+                "hour": 22,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 5,
+                "hour": 7,
+                "minute": 0
+              },
+              "close": {
+                "day": 5,
+                "hour": 22,
+                "minute": 0
+              }
+            },
+            {
+              "open": {
+                "day": 6,
+                "hour": 8,
+                "minute": 0
+              },
+              "close": {
+                "day": 6,
+                "hour": 14,
+                "minute": 0
+              }
+            }
+          ],
+          "weekdayDescriptions": [
+            "Pazartesi: 07:00–22:00",
+            "Salı: 07:00–22:00",
+            "Çarşamba: 07:00–22:00",
+            "Perşembe: 07:00–22:00",
+            "Cuma: 07:00–22:00",
+            "Cumartesi: 08:00–14:00",
+            "Pazar: 08:00–18:00"
+          ],
+          "nextCloseTime": "2025-09-14T15:00:00Z"
+        },
+        "utcOffsetMinutes": 180,
+        "adrFormatAddress": "\u003cspan class=\"street-address\"\u003eBağlarbaşı, Öz Fırat Sok. No:12\u003c/span\u003e, \u003cspan class=\"postal-code\"\u003e34844\u003c/span\u003e \u003cspan class=\"locality\"\u003eMaltepe\u003c/span\u003e/\u003cspan class=\"region\"\u003eİstanbul\u003c/span\u003e, \u003cspan class=\"country-name\"\u003eTürkiye\u003c/span\u003e",
+        "businessStatus": "OPERATIONAL",
+        "userRatingCount": 61,
+        "iconMaskBaseUri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/school_pinlet",
+        "iconBackgroundColor": "#7B9EB0",
+        "displayName": {
+          "text": "Fizyopera KLİNİK PİLATES",
+          "languageCode": "tr"
+        },
+        "primaryTypeDisplayName": {
+          "text": "Spor salonu",
+          "languageCode": "tr-TR"
+        },
+        "currentOpeningHours": {
+          "openNow": true,
+          "periods": [
+            {
+              "open": {
+                "day": 0,
+                "hour": 8,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 14
+                }
+              },
+              "close": {
+                "day": 0,
+                "hour": 18,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 14
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 1,
+                "hour": 7,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 15
+                }
+              },
+              "close": {
+                "day": 1,
+                "hour": 22,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 15
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 2,
+                "hour": 7,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 16
+                }
+              },
+              "close": {
+                "day": 2,
+                "hour": 22,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 16
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 3,
+                "hour": 7,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 17
+                }
+              },
+              "close": {
+                "day": 3,
+                "hour": 22,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 17
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 4,
+                "hour": 7,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 18
+                }
+              },
+              "close": {
+                "day": 4,
+                "hour": 22,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 18
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 5,
+                "hour": 7,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 19
+                }
+              },
+              "close": {
+                "day": 5,
+                "hour": 22,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 19
+                }
+              }
+            },
+            {
+              "open": {
+                "day": 6,
+                "hour": 8,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 20
+                }
+              },
+              "close": {
+                "day": 6,
+                "hour": 14,
+                "minute": 0,
+                "date": {
+                  "year": 2025,
+                  "month": 9,
+                  "day": 20
+                }
+              }
+            }
+          ],
+          "weekdayDescriptions": [
+            "Pazartesi: 07:00–22:00",
+            "Salı: 07:00–22:00",
+            "Çarşamba: 07:00–22:00",
+            "Perşembe: 07:00–22:00",
+            "Cuma: 07:00–22:00",
+            "Cumartesi: 08:00–14:00",
+            "Pazar: 08:00–18:00"
+          ],
+          "nextCloseTime": "2025-09-14T15:00:00Z"
+        },
+        "primaryType": "gym",
+        "shortFormattedAddress": "Bağlarbaşı, Öz Fırat Sok. No:12, Maltepe",
+        "reviews": [
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/reviews/Ci9DQUlRQUNvZENodHljRjlvT25KSVNFTkxPREJRZEdSYWJESjJUMjlzZUZWcVZrRRAB",
+            "relativePublishTimeDescription": "2 hafta önce",
+            "rating": 5,
+            "text": {
+              "text": "Fizyopera klinik pilateste beşinci ayıma giriş yapmış bulunmaktayım. Bel ve boyun ağrısı ile ilk olarak kliniğe gittim ve ikinci aydan itibaren ağrılarımda azalma oldu. Şu an hiç ağrım yok. Hocalarımızın ilgisi ve yönlendirmeleriyle ilk geldiğim halden daha enerjik olduğumu farkettim. 'İyi ki gelmişim' dediğim bir yer oldu:)",
+              "languageCode": "tr"
+            },
+            "originalText": {
+              "text": "Fizyopera klinik pilateste beşinci ayıma giriş yapmış bulunmaktayım. Bel ve boyun ağrısı ile ilk olarak kliniğe gittim ve ikinci aydan itibaren ağrılarımda azalma oldu. Şu an hiç ağrım yok. Hocalarımızın ilgisi ve yönlendirmeleriyle ilk geldiğim halden daha enerjik olduğumu farkettim. 'İyi ki gelmişim' dediğim bir yer oldu:)",
+              "languageCode": "tr"
+            },
+            "authorAttribution": {
+              "displayName": "Rojda Alaca",
+              "uri": "https://www.google.com/maps/contrib/109255288458011691447/reviews",
+              "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocKOcmmQbHQF2IrWbOtyKO1U8s13DXtxN8XTAF5PL7eCuBvItA=s128-c0x00000000-cc-rp-mo"
+            },
+            "publishTime": "2025-08-30T15:58:10.795113785Z",
+            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=Ci9DQUlRQUNvZENodHljRjlvT25KSVNFTkxPREJRZEdSYWJESjJUMjlzZUZWcVZrRRAB&d=17924085&t=1",
+            "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25KSVNFTkxPREJRZEdSYWJESjJUMjlzZUZWcVZrRRAB!2m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/reviews/Ci9DQUlRQUNvZENodHljRjlvT2tSQk55MUlNbFJEVTE5S2RtUk5SMnBPZUhaaFRIYxAB",
+            "relativePublishTimeDescription": "4 hafta önce",
+            "rating": 5,
+            "text": {
+              "text": "Bel fıtığına bağlı artan bel ağrıları şikayetlerimin azalması için pilatese başladım, bir senelik süreç geride kaldı, çok memnunum, salonun fonksiyonel olarak planlanması, çalışan kadronun bu süreçte değişmemesi, bir kaç ay içerisinde cadillacta  çalışmaya başlayabilmek, iş yeri sahibi Gülsüm hanımın bu alanda yetkin olması ve fizyoterapist uzmanlarla çalışması, egzersiz sonrası yeni ağrı ve zorlanma şikayetlerinin olmaması, mahremiyet açısından sorun yaşamamak farklı salonlarda yaşadığım ancak burada karşılaşmadığım zorluklar. İlave olarak güçlenmek, daha iyi bir dengeye sahip olmak, hareket kabiliyetimin artması, yeni ve çeşitli egzersizlerle süreci daha ileriye taşımak noktasında çok katkıları oldu. Fıtığa bağlı ağrılarım aylar boyunca sürerken bir hafta içerisinde gerileyebiliyor, memnunum kendilerine teşekkür ederim, tavsiye ederim",
+              "languageCode": "tr"
+            },
+            "originalText": {
+              "text": "Bel fıtığına bağlı artan bel ağrıları şikayetlerimin azalması için pilatese başladım, bir senelik süreç geride kaldı, çok memnunum, salonun fonksiyonel olarak planlanması, çalışan kadronun bu süreçte değişmemesi, bir kaç ay içerisinde cadillacta  çalışmaya başlayabilmek, iş yeri sahibi Gülsüm hanımın bu alanda yetkin olması ve fizyoterapist uzmanlarla çalışması, egzersiz sonrası yeni ağrı ve zorlanma şikayetlerinin olmaması, mahremiyet açısından sorun yaşamamak farklı salonlarda yaşadığım ancak burada karşılaşmadığım zorluklar. İlave olarak güçlenmek, daha iyi bir dengeye sahip olmak, hareket kabiliyetimin artması, yeni ve çeşitli egzersizlerle süreci daha ileriye taşımak noktasında çok katkıları oldu. Fıtığa bağlı ağrılarım aylar boyunca sürerken bir hafta içerisinde gerileyebiliyor, memnunum kendilerine teşekkür ederim, tavsiye ederim",
+              "languageCode": "tr"
+            },
+            "authorAttribution": {
+              "displayName": "Betül Cihan",
+              "uri": "https://www.google.com/maps/contrib/110616373352300607126/reviews",
+              "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjUklY7B4fZsSCZVWB_0fMGHEG5QdNz3G3AOPMee4kEewAPgNHk=s128-c0x00000000-cc-rp-mo"
+            },
+            "publishTime": "2025-08-15T17:54:23.502513578Z",
+            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=Ci9DQUlRQUNvZENodHljRjlvT2tSQk55MUlNbFJEVTE5S2RtUk5SMnBPZUhaaFRIYxAB&d=17924085&t=1",
+            "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT2tSQk55MUlNbFJEVTE5S2RtUk5SMnBPZUhaaFRIYxAB!2m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/reviews/ChZDSUhNMG9nS0VNWHg1SUx6bGVYaFR3EAE",
+            "relativePublishTimeDescription": "3 ay önce",
+            "rating": 5,
+            "text": {
+              "text": "Boyun fıtığı ve düzleşmesi nedeniyle kronikleşen baş ağrılarım ve fibromiyalji tanım sonrasında pilates stüdyosu arayışına girmiştim. Görüşme ve kayıt sonrasında emar sonuçlarım incelendi ve anlattığım tüm şikayetler dinlendi. Skolyozum orada tespit edildi. Gülsüm hanım ve tüm arkadaşlar (Filiz, Melisa, Zeynep ve Neslihan hanım) işlerini özveriyle yapıyor. Yaklaşık 6 ayı Aşkın süredir haftada 2 gün olmak üzere gidiyorum. Çok sayıda manuel terapi de aldım. Çalışan arkadaşlar çok samimi, isteklerinizi ve taleplerinizi dinliyorlar. Herhangi bir durum olduğunda rahatlıkla kendimi ifade edebildiğim bir yer. Çok memnunum, pilatese başlamayı düşünen herkese bir şans vermelerini öneririm.",
+              "languageCode": "tr"
+            },
+            "originalText": {
+              "text": "Boyun fıtığı ve düzleşmesi nedeniyle kronikleşen baş ağrılarım ve fibromiyalji tanım sonrasında pilates stüdyosu arayışına girmiştim. Görüşme ve kayıt sonrasında emar sonuçlarım incelendi ve anlattığım tüm şikayetler dinlendi. Skolyozum orada tespit edildi. Gülsüm hanım ve tüm arkadaşlar (Filiz, Melisa, Zeynep ve Neslihan hanım) işlerini özveriyle yapıyor. Yaklaşık 6 ayı Aşkın süredir haftada 2 gün olmak üzere gidiyorum. Çok sayıda manuel terapi de aldım. Çalışan arkadaşlar çok samimi, isteklerinizi ve taleplerinizi dinliyorlar. Herhangi bir durum olduğunda rahatlıkla kendimi ifade edebildiğim bir yer. Çok memnunum, pilatese başlamayı düşünen herkese bir şans vermelerini öneririm.",
+              "languageCode": "tr"
+            },
+            "authorAttribution": {
+              "displayName": "Özge Şahin",
+              "uri": "https://www.google.com/maps/contrib/117542018973718483091/reviews",
+              "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjWDd6PIdiCUPQFKQBEuGrXfBZ_dAUv1i6b5vHyjO71f10rGTVI-=s128-c0x00000000-cc-rp-mo-ba3"
+            },
+            "publishTime": "2025-05-23T08:05:54.500459Z",
+            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VNWHg1SUx6bGVYaFR3EAE&d=17924085&t=1",
+            "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VNWHg1SUx6bGVYaFR3EAE!2m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/reviews/ChdDSUhNMG9nS0VJQ0FnTUNZeVplUm1RRRAB",
+            "relativePublishTimeDescription": "4 ay önce",
+            "rating": 2,
+            "text": {
+              "text": "ilerleyen fıtığım için mart başında tanıştığım ve aslında gittiğim ilk günden beri fiyasko olacağını tahmin ettiğim bi işletme! Kapıdan içeri girdiğimde ofise gittim ve şikayetlerimden ve süreçten bahsetmeye başladım. Doğal olarak masada oturan kişiyi yetkili biri sandım.Uzun bi şekilde anlattıktan sonra biz sizin telefonunuzu alalım size dönsünler denildi. Ben neden oradan boşa konuşmuş oldum acaba!!!???!  Ve ben anlatırken de benimle zaten hiç bi şekilde ilgilenilmemişti. Sonrasında Gülsüm hanım aradı ve seans organizasyonundan sonra başladık. Bacak ağrım ciddi boyutta ve ne zaman aletle masaj yapılmak istense şarjı yok! Haftalık programlanma için ben yazıp ne zaman yapacağız diyorum, plan program yok! Direkt seans ve para anlatılıyor işletme kurallarından bahsetme yok, acil bi işim için derse gelemeceğimi söyledim iptalleri 24 saat önce yapıldığını o zaman öğrendim! Ve başladığım hoca ile devam etmek istediğimi söylediğimde de “Zeynep hocayla da orada tanıştınız zaten bu ısrarınızı anlamıyorum”  “siz sorun çıkarmışsınız gruba öyle yazıldı” diye bana mesaj atan bir işletme ki sadece bu bilgi bana neden verilmedi demiştim. İki hoca da buna şahittir! Başka hoca da girse raporlarınıza bakılıyor dendi. Başka hocayla ders yaptım ne hareket yaptığımızı ben söyledim. Tamamen fiyasko, tamamen zaman ve para kaybı. Bu hafta içinde hala aranmadım. Bakalım ne zaman lütuf edip seanslarımı düzenleyecekler.",
+              "languageCode": "tr"
+            },
+            "originalText": {
+              "text": "ilerleyen fıtığım için mart başında tanıştığım ve aslında gittiğim ilk günden beri fiyasko olacağını tahmin ettiğim bi işletme! Kapıdan içeri girdiğimde ofise gittim ve şikayetlerimden ve süreçten bahsetmeye başladım. Doğal olarak masada oturan kişiyi yetkili biri sandım.Uzun bi şekilde anlattıktan sonra biz sizin telefonunuzu alalım size dönsünler denildi. Ben neden oradan boşa konuşmuş oldum acaba!!!???!  Ve ben anlatırken de benimle zaten hiç bi şekilde ilgilenilmemişti. Sonrasında Gülsüm hanım aradı ve seans organizasyonundan sonra başladık. Bacak ağrım ciddi boyutta ve ne zaman aletle masaj yapılmak istense şarjı yok! Haftalık programlanma için ben yazıp ne zaman yapacağız diyorum, plan program yok! Direkt seans ve para anlatılıyor işletme kurallarından bahsetme yok, acil bi işim için derse gelemeceğimi söyledim iptalleri 24 saat önce yapıldığını o zaman öğrendim! Ve başladığım hoca ile devam etmek istediğimi söylediğimde de “Zeynep hocayla da orada tanıştınız zaten bu ısrarınızı anlamıyorum”  “siz sorun çıkarmışsınız gruba öyle yazıldı” diye bana mesaj atan bir işletme ki sadece bu bilgi bana neden verilmedi demiştim. İki hoca da buna şahittir! Başka hoca da girse raporlarınıza bakılıyor dendi. Başka hocayla ders yaptım ne hareket yaptığımızı ben söyledim. Tamamen fiyasko, tamamen zaman ve para kaybı. Bu hafta içinde hala aranmadım. Bakalım ne zaman lütuf edip seanslarımı düzenleyecekler.",
+              "languageCode": "tr"
+            },
+            "authorAttribution": {
+              "displayName": "Burcu Baltalı",
+              "uri": "https://www.google.com/maps/contrib/106047888127878062854/reviews",
+              "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocKsOgxvrZzEsQpUrXv1y4gbnJ-9TWbuISgU8z52rAE-rybjFA=s128-c0x00000000-cc-rp-mo"
+            },
+            "publishTime": "2025-05-05T08:02:52.642017Z",
+            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnTUNZeVplUm1RRRAB&d=17924085&t=1",
+            "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnTUNZeVplUm1RRRAB!2m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/reviews/ChdDSUhNMG9nS0VPei16Tm15OHFhYnZRRRAB",
+            "relativePublishTimeDescription": "3 ay önce",
+            "rating": 5,
+            "text": {
+              "text": "Yaklaşık 6 aydır 15 yaşındaki kızımla birlikte gidiyoruz. Tüm hocalar güler yüzlü ve yardımsever. Seanslarımız hem yorucu hem de eğlenceli geçiyor. Daha önce gittiğim pilateslerde daha çok hareket edip bu kadar yorulmazken burada direk kasları açmak için çalışıldığından herhalde daha verimli geçiyor. Kızımın vücudu çok iyi esnedi ve duruş bozukluğu bayağı düzeldi, benim de daha önce fizik tedavi gördüğüm bel, diz ve omuz ağrılarım daha iyi oldu. Ara ara ağrılarım olduğunda alet de takıyorlar. Ben çok memnunun, ağrıları için pilates arayanlara kesinlikle öneririm.",
+              "languageCode": "tr"
+            },
+            "originalText": {
+              "text": "Yaklaşık 6 aydır 15 yaşındaki kızımla birlikte gidiyoruz. Tüm hocalar güler yüzlü ve yardımsever. Seanslarımız hem yorucu hem de eğlenceli geçiyor. Daha önce gittiğim pilateslerde daha çok hareket edip bu kadar yorulmazken burada direk kasları açmak için çalışıldığından herhalde daha verimli geçiyor. Kızımın vücudu çok iyi esnedi ve duruş bozukluğu bayağı düzeldi, benim de daha önce fizik tedavi gördüğüm bel, diz ve omuz ağrılarım daha iyi oldu. Ara ara ağrılarım olduğunda alet de takıyorlar. Ben çok memnunun, ağrıları için pilates arayanlara kesinlikle öneririm.",
+              "languageCode": "tr"
+            },
+            "authorAttribution": {
+              "displayName": "Neslihan Karabiber",
+              "uri": "https://www.google.com/maps/contrib/116958685653676688944/reviews",
+              "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXkFHrg6VpOALIT0ODROQUyglko5XQJc6-aYQXVdokC_IqtUM4=s128-c0x00000000-cc-rp-mo-ba3"
+            },
+            "publishTime": "2025-05-23T09:46:14.602786Z",
+            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VPei16Tm15OHFhYnZRRRAB&d=17924085&t=1",
+            "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VPei16Tm15OHFhYnZRRRAB!2m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          }
+        ],
+        "photos": [
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpc6rdlwqceweT_fZVUPWxr2pRmojZja0DuPz--WDRRGCNRGi3QAOxWMth1fA1Z5hPz_G3-IHl9tIzJ6i2fhhK-Kaknallj88l7Ebt1GFRoKWgdCFQdR4ZMjKEzAPz52nQtA_1H67PliNLGijkWpp6W9MbtNHcC_DKN4MtmcIfvdTUEdKb3qvKd1ecmPZFQntK3Gp8G3Kf2M6AjJYrxuvx4czAYgTQQFA5-H_2c3cimeRkYOT1gkQUM-6Apx-U5YhGdwbFUWRozDQZrdS0fudX8d7zKqUj2IJDQ_sX3752m66Q",
+            "widthPx": 1024,
+            "heightPx": 576,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipMMH3YnKV4aF0wtMLzdbHZYMiwJJncATOiUF73T&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMMH3YnKV4aF0wtMLzdbHZYMiwJJncATOiUF73T!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpcB7dVnhblv044sd7YBTf4WOiEj3W4pyU956DUkugt_tgdp6kdk3wdh_aGgQpU__t1l_DHTnOQaYdtbFITeplO-7k8iI_cY4Wopyc9RYMmSk2WMjfjRRRsysmvT792vzDqIZINW3gRrGI9JyplEieGZKe-vYjS48vD9GSdGM2jVuchpC7uxudI_RE011QsWr5a_P2SHJN4DCUpm9-oebLwb2exQ4uOXe955EnPSzoOopiyMJCHHT4mZGoBJNmFyUZkganBHEMQGZ3W2z_BAg0qIjZLWU0WMmbozwdd15OI2uw",
+            "widthPx": 768,
+            "heightPx": 1024,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOk5MNbVr1GiDS06Y1nrOTRHysxySqhRJuOM2WS&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOk5MNbVr1GiDS06Y1nrOTRHysxySqhRJuOM2WS!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpfS16sBi_NseH13SnMP8R5CaujrNnTac3pmC7XvL6nxBKc74MnK7UNTGX5cM0IqAxTMJaLJj8aoKtRPVl7AdtYLfEx0NNrWLddOtEgClB6s9FR-otqntvdPKiJ7fZrPhh0cT7vluOMQuA0SwoxTPqS6algyHH1cZh4QYL4Ep4Pi8v9mg-u2tnTzgE_bChbluLIQMsd-ohlMt0_IFTGsJF_1Cnol5iiPnIAjQfu7MB04mlfiN_hS-uAaCidpX2Ct-3beuFZRatcTIzIO5BcnsJg7AMdstWYNQm0__QQ7rlUnug",
+            "widthPx": 1024,
+            "heightPx": 972,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPmYsu6WttxommQQiXCW-DgFmIqoOKNBalmRpzd&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPmYsu6WttxommQQiXCW-DgFmIqoOKNBalmRpzd!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpdCB7JysK4ASirVjzNGIlbMZ44gIGbBkRD39TJmVctxaIWt4FDVoOXHoc3qUBp1R6edqHsd_Ohje4kb_wY1xcKGEB4KuO3ZKB9Tq54NL84AnjXZoUV8riJAseSYpAnbJgPq2-GH9vG_-RXV0bAbeJ6zT5PbP-yOjy6Xb8k0xbS6c8areQYouVOAHccZ64EZv_Vf5US8Wl8i0QTMRNPCFj7jinfPmOAf7xJmGeH5T-OshXTu02Oai6d75FVAgKuaIc-O8kR9HW8-K6WAJAzPZVgoIUn5dUazw7f7q1T3ZQZKyg",
+            "widthPx": 691,
+            "heightPx": 1024,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPDBEZT3NEk83hNEdlwU4Lxjsxl9_-qdoJt7hjT&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPDBEZT3NEk83hNEdlwU4Lxjsxl9_-qdoJt7hjT!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpcs4byd8nAWYbKUOu6X1u1BtuFfb_vGPW-BNoEfd11l-A_HLDOtfgIE7XPsNepyPD4sCvHyOxIwOE4xF8jUdVHM6EfFf9VzHNTcMeYjSDornkVTeFA8Iip59c4_0BB1-MZdNEdx9tVas7hLG1mLb3i8jWsaj4RLYt6SuuUIK4CfIA-Xv7ywwVsN0j70rw4N4I38eMG4owjkoUX06ixmyMKWwYn3eg2BXq_2T_slOk2wE0gKcsQUNtgQS9tzUZ4AkgKKuM0Oen5kjPJOsfFFDn_AatJLYOb20LGEZLZlP1lTdQ",
+            "widthPx": 1024,
+            "heightPx": 721,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOlbjC9m47M0QAmykLuScz98MRZlJvA0zUcSjcc&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOlbjC9m47M0QAmykLuScz98MRZlJvA0zUcSjcc!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpcHM8gI96s5BiwyBh8p0vJWXvJD8laUrzJfl4TehukNouTQmSmo3ZYX8Pv8VnYcWbzqQ24rp9oxih4Gb0lrJHg0UAnKmHoP4LhIjOgk6r5e4szBQxMk5jPY7TtPdi8mf2DSltmIbBwi85smW08bufuhfBc7mVQPiDKzElHXK1qrFcjDoiME0GTwmBZ1zJ3EU0lsFXCb5HbfnwhJkeBmtvuyF1tFGssmQReQk5KOY0NAAL9MmmDPsl4PgRclC8uiMLjJE6Q2smXik8NZuM3y71KW-dPq4u5GHHeU14nDbkPsiw",
+            "widthPx": 1080,
+            "heightPx": 1080,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipO0swDX-Y6BBDG7nBvs1CcaDYRtzKH7bGiwIKS9&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipO0swDX-Y6BBDG7nBvs1CcaDYRtzKH7bGiwIKS9!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpecUZuLa-UQfBEaIH_zkEsv3EfbD9AxmfhuPOuwQZwSuNPAnU8-rzkoYW3QZNFLR8LzMHRivrRnwynCcAyWfSjJkTUQ6bLOgPtSBd9S3mzkqNBVJBhmnAA4uKHnqvO-lmcPk804aGinG0RJW7HBhU5X4Pnv4A95AshVQwQQt8ZlK-UTmwIfgXQ4FpRwKGFp4hh0uCvfnzN8gMlHyzPyJubTVLksVa3f26pdVht6jFuZwoJYdxfjo_7T-ZQ6iMa246V0tkQl1_fJ01fgld9_XElNCK50mU1cKNK3HE2ZzntFDQ",
+            "widthPx": 739,
+            "heightPx": 1024,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipMSliwgBJdbCl0zu5qv4iUTZFoU3qyNcWhr9CGC&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMSliwgBJdbCl0zu5qv4iUTZFoU3qyNcWhr9CGC!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpc3ZVDK7WpmDS9GLQLPdQU7E1I3ttXoC1-U_jPkeMFSaxBqWk07q1I9J6k-Rq8lIDzbKdrwkyeFqAyjzfeku9Wqw6IIzwz0fjlToBKjP_MleGjHVGgUry0QF5Vt1PxE3MjPgksYtR98SsykVhhuk3Tc6Ls_ykVlhLPoZyMGcUoifZb7JMjDS_4Dqs_Lwu9qjVq1M7MsbvdRXxXiCKyM8VlPWnZMdccHJk7RHuZwp_HPDqjn7gqg0E3AX0NpAQFhPsARb9TFNsgo3-sZpr0uSQ51_Fb7qQRVI_DReB1_v4-PWAhnR9PrubjrUUz78r-WcQ6icyB0jDgiBrM3x2pEu0rzclMyIYGipdDRMQLWDQnJGZNB68A_KR2-v_Tkf1fCIEGolMW5hY0z-kOuUxtTX2TWJaA0LtATmcKHhV4ih2I",
+            "widthPx": 349,
+            "heightPx": 261,
+            "authorAttributions": [
+              {
+                "displayName": "Kubra Özer",
+                "uri": "https://maps.google.com/maps/contrib/103782885800394222624",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ7bnjYURR_g52DCrh_JES8LZ92Lzzz_Fj1udHf8dUDIHnS8g=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sCIHM0ogKEICAgIDZpJOoVQ&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sCIHM0ogKEICAgIDZpJOoVQ!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpf2TPkD7-Avea3d8rBqrurvbUv3uZ68F_B3p_pIgXqw0eN23uXfFKchf8FrpzXqguKDUeZYf_pdTMBdrMeKJxN33BlQqxeDMuzCsfUIlXQDnFdi47xkUmHnwGzzr7Q-7n7pP75pbdj0fF_QMmLL998jzZ4VkNAdcWLlmzb6JQ-W5DjMPbsmBLmeBnHix2Q2RKr_2_WHgi9JGY1gOVJ6Prxt0Kx5N48bfJNLvaclX27COQBvP_4jbiTukZX1Cx-wHzO2z6Pin6p3hQYCP-G6oysOXcDiY0mRKeFxRZIMXL-sRA",
+            "widthPx": 1024,
+            "heightPx": 659,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOwdH0weelb7VJHkCJzweHOILGEkHLu2D0ffEsZ&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOwdH0weelb7VJHkCJzweHOILGEkHLu2D0ffEsZ!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          }
+        ],
+        "restroom": true,
+        "containingPlaces": [
+          {
+            "name": "places/ChIJaatLGajGyhQRM-gNNLX80kM",
+            "id": "ChIJaatLGajGyhQRM-gNNLX80kM"
+          }
+        ],
+        "addressDescriptor": {
+          "landmarks": [
+            {
+              "name": "places/ChIJOYNOXevGyhQR_RjO-rY0wjg",
+              "placeId": "ChIJOYNOXevGyhQR_RjO-rY0wjg",
+              "displayName": {
+                "text": "Noter",
+                "languageCode": "tr"
+              },
+              "types": [
+                "establishment",
+                "finance",
+                "point_of_interest"
+              ],
+              "spatialRelationship": "DOWN_THE_ROAD",
+              "straightLineDistanceMeters": 36.29014,
+              "travelDistanceMeters": 36.118935
+            },
+            {
+              "name": "places/ChIJ__esW6jGyhQRdr3dBs_xFlE",
+              "placeId": "ChIJ__esW6jGyhQRdr3dBs_xFlE",
+              "displayName": {
+                "text": "File Market",
+                "languageCode": "tr"
+              },
+              "types": [
+                "establishment",
+                "food",
+                "grocery_or_supermarket",
+                "point_of_interest",
+                "store",
+                "supermarket"
+              ],
+              "spatialRelationship": "AROUND_THE_CORNER",
+              "straightLineDistanceMeters": 164.37274,
+              "travelDistanceMeters": 224.76773
+            },
+            {
+              "name": "places/ChIJDV4bpF_HyhQRZ3pJDM90ZHY",
+              "placeId": "ChIJDV4bpF_HyhQRZ3pJDM90ZHY",
+              "displayName": {
+                "text": "Semt Pazarı Çarşamba Günleri",
+                "languageCode": "tr"
+              },
+              "types": [
+                "establishment",
+                "point_of_interest"
+              ],
+              "straightLineDistanceMeters": 197.84814,
+              "travelDistanceMeters": 220.77402
+            },
+            {
+              "name": "places/ChIJtwg0c6XGyhQRENFMFCa7Qms",
+              "placeId": "ChIJtwg0c6XGyhQRENFMFCa7Qms",
+              "displayName": {
+                "text": "Albaraka Türk Maltepe Şubesi",
+                "languageCode": "tr"
+              },
+              "types": [
+                "atm",
+                "bank",
+                "establishment",
+                "finance",
+                "point_of_interest"
+              ],
+              "straightLineDistanceMeters": 137.41208,
+              "travelDistanceMeters": 160.75955
+            },
+            {
+              "name": "places/ChIJx7AtNRXEyhQR-lEY10LSs2Y",
+              "placeId": "ChIJx7AtNRXEyhQR-lEY10LSs2Y",
+              "displayName": {
+                "text": "Vasfi Rıza Zobu İlkokulu",
+                "languageCode": "tr"
+              },
+              "types": [
+                "establishment",
+                "point_of_interest",
+                "primary_school",
+                "school"
+              ],
+              "straightLineDistanceMeters": 393.48395,
+              "travelDistanceMeters": 499.98477
+            }
+          ]
+        },
+        "googleMapsLinks": {
+          "directionsUri": "https://www.google.com/maps/dir//''/data=!4m7!4m6!1m1!4e2!1m2!1m1!1s0x14cac71fca208257:0xe7b4296456d55fe5!3e0?g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA",
+          "placeUri": "https://maps.google.com/?cid=16696015229499564005&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA",
+          "writeAReviewUri": "https://www.google.com/maps/place//data=!4m3!3m2!1s0x14cac71fca208257:0xe7b4296456d55fe5!12e1?g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA",
+          "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x14cac71fca208257:0xe7b4296456d55fe5!9m1!1b1?g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA",
+          "photosUri": "https://www.google.com/maps/place//data=!4m3!3m2!1s0x14cac71fca208257:0xe7b4296456d55fe5!10e5?g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQABgBIAA"
+        },
+        "timeZone": {
+          "id": "Europe/Istanbul"
+        },
+        "postalAddress": {
+          "regionCode": "TR",
+          "languageCode": "tr-TR",
+          "postalCode": "34844",
+          "administrativeArea": "İstanbul",
+          "locality": "Maltepe",
+          "addressLines": [
+            "Bağlarbaşı",
+            "Öz Fırat Sok. No:12"
+          ]
+        }
+      }
+    ],
+    "contextualContents": [
+      {
+        "photos": [
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpfwLbDPBAEvjsQdb_HpRw8fq0ek1X6MaXcFkG3E9vop1DRjJt5e7DCwZHzVV0QV66OlFIh0xdS4aX4VKCRfNfGuWeR6JVTmgn5G_w-c7-Ey2_zbJVMap_0GpyX_ktMAWaY3et6l6KhthEVO6ozBeFXI1ZfjsMBa4EHG2OHdSskOYNZhBp-yEfFpUAubs2xPRy39XOCJu6bqestq2YBWNutoK6UUH3Q4QjPdmq_R1YIdcGGvfOYkPf1l7esnBmJXQHCmtt-t9vTdDKOkQhorPL6oTHKaflsb4Q",
+            "widthPx": 1024,
+            "heightPx": 576,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places&image_key=!1e10!2sAF1QipMMH3YnKV4aF0wtMLzdbHZYMiwJJncATOiUF73T&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMMH3YnKV4aF0wtMLzdbHZYMiwJJncATOiUF73T!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpclJCGmoxwOftFTCpoFdHXvzoAkDtUFhznr8NSJ7CTIK9rjFZ0HR3FOagHJInHa3IUYK17xf4Yi5AYFug19eXIoXi2t6HF-Uv4b2pjYn6lgoDkXZ5Zx-ALwGdl_dTiCce8UVu4kHx8Eh8U-qJTlo1Vn0n3tNvOnLSLtEQII28VDYxFM08XVMXPLc2CjP21dRwgOa6cs2DlvsMF0MQ-beE1A56UquOOZpXWte7vewW4Vd9iik1hOYzu5ijG2UiPLb8_hFNvL0dwnENlNBsLVjpRa8Qxcx2f2cw",
+            "widthPx": 768,
+            "heightPx": 1024,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places&image_key=!1e10!2sAF1QipOk5MNbVr1GiDS06Y1nrOTRHysxySqhRJuOM2WS&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOk5MNbVr1GiDS06Y1nrOTRHysxySqhRJuOM2WS!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpfoU3HlT5P9FJEhff8bt5fp7BThYXvtqOQ3KADW9GdAWI1SRS0Fx0a1Y-83wPG5KcA0A7cGObe8yApar2-lVmyUVaN2h5gNiMEh2x552PAaXYCo7_nWvV3VKQqdB0yAxk_cXmTw79UVkFucO1YWDenww39rnlUXUQa2JckMrb4NaI8njDhPMbz9ZvCle6P7BnvUQYndU5gmu3h_oae1C2Tef-82yDHOdHm_8-yFeC2t4pMGK49d_32h_hv9KXdzxm-S4mDsiJU5FnT6Sr5mJeTt-K0dgqxU7A",
+            "widthPx": 1024,
+            "heightPx": 972,
+            "authorAttributions": [
+              {
+                "displayName": "Google Kullanıcısından",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places&image_key=!1e10!2sAF1QipPmYsu6WttxommQQiXCW-DgFmIqoOKNBalmRpzd&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPmYsu6WttxommQQiXCW-DgFmIqoOKNBalmRpzd!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpc5Y2eSVICnpTdO98jdASsyYqHuGxcfOBKnDTBPNQotJJHiUfNyZ_ZkajnDDP44b6hRkZlFfCnzk6IT8x5Ryc5i0QblVdGaCBONKEEM3PcTJP_IUS_6JOWGECDSPqSXlVfSiYgMdmVfACHM0WRwKP9CSuQfA4fHyE_EA42831X8xNpRi0EUIJ8BCLck7Mx369DwJdKDObmQMkFJ27pFMH14QmIpy87-HSlEcKC_VHxZPp8ZamBhYW-poy7zwZMlKOUpJb_-Jw3kHW53Gg-5qAWN3dZQ1Jlolg",
+            "widthPx": 691,
+            "heightPx": 1024,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places&image_key=!1e10!2sAF1QipPDBEZT3NEk83hNEdlwU4Lxjsxl9_-qdoJt7hjT&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPDBEZT3NEk83hNEdlwU4Lxjsxl9_-qdoJt7hjT!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          },
+          {
+            "name": "places/ChIJV4Igyh_HyhQR5V_VVmQptOc/photos/ATKogpdzFivoklw0WPjcBbP5XY_By0-sfaNCc4WPoJy20azdpcQFD2lwQiNVcZ2wCcLiSuk0DiiJGvp25bqwLXIy4AJGS6QAS3qJEk5SrI-R3ZK2dDpDP4xYRzk09zSvcTSdcSP5otOLJrVuZ8LOPyqvpk4q4_Nh7DKkUXEb7USGDdG9DuVTpdoCcFcmrnOpAj9vOcMHZBrkFpgGexkEKOsvRhuAqeCPgUo--1WKgyeLgjJJtPWZoYjzEK2Nxm6Al1CUsuDWjjT3kjvdT_KGTRKC14G2NFHjYEqGag",
+            "widthPx": 1024,
+            "heightPx": 721,
+            "authorAttributions": [
+              {
+                "displayName": "Fizyopera KLİNİK PİLATES",
+                "uri": "https://maps.google.com/maps/contrib/103023246074629880034",
+                "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJ1bcUBUDBXlJJ8EdSA_tp-N9PARCMHbHf7zzX9uGJyRyESjA=s100-p-k-no-mo"
+              }
+            ],
+            "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places&image_key=!1e10!2sAF1QipOlbjC9m47M0QAmykLuScz98MRZlJvA0zUcSjcc&hl=tr-TR",
+            "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOlbjC9m47M0QAmykLuScz98MRZlJvA0zUcSjcc!2e10!4m2!3m1!1s0x14cac71fca208257:0xe7b4296456d55fe5"
+          }
+        ]
+      }
+    ],
+    "searchUri": "https://www.google.com/maps/search/FizyoPera,+Istanbul"
+  }
+  

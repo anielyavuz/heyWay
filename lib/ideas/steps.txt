@@ -1,0 +1,56 @@
+## HeyWay Delivery Roadmap
+
+### Phase 0 – Foundations
+- [ ] Initialize Flutter project structure and configure Firebase project (Firestore, Storage, Authentication).
+- [ ] Enable anonymous auth for quick prototype sign-in and set default security rules to deny writes by unauthenticated users.
+- [ ] Scaffold core navigation: bottom tabs (Home, Account, Discover placeholder).
+- [ ] Implement ThemeProvider, app theme switch, and persist preference locally.
+- [ ] Wire Firebase initialization with `firebase_core` and confirm anonymous login flow.
+- [ ] Define core terminology (Pulse) and update copywriting guidelines so UI messaging stays consistent.
+
+### Phase 1 – Core Pulse Experience
+- [ ] Design Firestore collections (`users`, `venues`, `pulses`) aligned with firebase.txt spec.
+- [ ] Build location permission request & geolocation service (using `geolocator` or similar).
+- [ ] Implement venue search + nearby list using sample data; integrate Firestore geohash queries later.
+- [ ] Integrate Foursquare Places API (free tier) for venue metadata during prototyping.
+- [ ] Stub abstraction layer so alternate POI providers can be swapped without core refactor.
+- [ ] Create Pulse composer (select venue, mood, caption, optional photo upload to Storage).
+- [ ] Add lightweight privacy controls to the composer (public / friends / private) with client validation.
+- [ ] Write Cloud Function or serverless callable to mirror Pulses into `users/{userId}/pulses` and update counters.
+- [ ] Enforce security rules for anonymous users (read-only public venues, own Pulses only).
+- [ ] Basic activity feed showing recent public Pulses; apply visibility filtering client-side for now.
+
+### Phase 2 – Social Growth Loop
+- [ ] Migrate authentication from anonymous to email/password; retain anonymous sessions with link flow.
+- [ ] Update security rules to require verified auth for write operations; restrict anonymous users to read-only mode.
+- [ ] Build profile screen editing (displayName, avatar upload) with Storage rules enforcement.
+- [ ] Implement friend requests using `friendships` collection (send, accept, block flows).
+- [ ] Launch collaborative planning boards (shared checklists, polls) tied to venues or time slots.
+- [ ] Highlight meaningful contributions (tips, photos, accessibility info) within venue detail views and feeds.
+- [ ] Introduce push notification registration via FCM token storage and targeted friend activity notifications.
+- [ ] Add simple in-app notifications (Firestore `notifications` collection) for friend requests, accepted invites, and collaborative updates.
+- [ ] Prototype creator/venue tooling (featured guides, partner badges) to seed premium content.
+
+### Phase 3 – Intelligent & Adaptive Experience
+- [ ] Integrate live Firestore venue data with geospatial indexing (GeoFireX or custom geohash queries).
+- [ ] Add rating/tips subsystem under venue subcollections with write validation and quality scoring.
+- [ ] Upgrade Foursquare usage to production plan or cache data via Cloud Functions to stay within limits.
+- [ ] Launch badge system: define `badges` documents and Cloud Functions for progress tracking.
+- [ ] Personalize discovery feeds using context (time of day, weather, past behavior) and privacy preferences.
+- [ ] Measure success beyond Pulse volume—track recommendation follow-through metrics via analytics pipeline.
+- [ ] Enhance activity feed with badges, friend joins, and trending venues; optimize queries via composite indexes.
+- [ ] Implement moderation/reporting callable functions and admin tooling (custom claims).
+- [ ] Switch default privacy to friends-only and provide granular privacy settings UI.
+- [ ] Prototype an AI assistant that suggests meetups or itineraries using current location + friend availability.
+- [ ] Optimize Storage usage: generate thumbnails via Cloud Functions and lazy load media.
+
+### Phase 4 – Scaling & Polish
+- [ ] Introduce email verification and optional OAuth providers (Apple/Google) for better retention.
+- [ ] Build group threads and direct messaging using `messages` collection and presence indicators.
+- [ ] Configure scheduled Cloud Functions for trending venue computations and stale activity cleanup (Firestore TTL).
+- [ ] Instrument analytics (Firebase Analytics/BigQuery) for engagement and growth dashboards.
+- [ ] Load-test Firestore queries and refine indexes; review costs with budget alerts.
+- [ ] Harden security rules with simulator tests and add regression test suite in CI.
+- [ ] Prepare App Store & Play Store deployment assets, privacy policy, and crash reporting (Crashlytics).
+- [ ] Establish business/creator onboarding workflows and partnerships programs.
+

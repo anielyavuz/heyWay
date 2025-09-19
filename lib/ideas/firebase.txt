@@ -1,0 +1,79 @@
+## HeyWay Firebase Design
+
+### Guiding Goals
+- Safeguard user privacy by default while keeping writes confined to the data owner or trusted Cloud Functions.
+- Minimize Firestore and Storage reads by denormalizing only the hot paths and relying on Cloud Functions for summaries.
+- Keep the data model flexible for future features (badges, events, DMs) without triggering large fan-out writes.
+
+### Core Collections
+- **users/{userId}**
+  - Fields: displayName, username (lowercase for lookup), avatarUrl, bio, homeGeoPoint, privacy: {profile: "friends|public", checkins: "friends|public", locationSharing: bool}, stats: {checkinCount, friendCount, badgeCount}, lastActive, pushTokens (array).
+  - Access: user updates own fields; friends read limited subset; Cloud Functions update stats to keep client writes light.
+
+- **venues/{venueId}**
+  - Fields: name, category, location: {geoPoint, geohash}, addressSummary, ownerId (optional), ratingSummary: {average, count}, trendingScore, amenities (array), coverPhotoUrl.
+  - Subcollections:
+    - `tips/{tipId}` (authorId, text, likeCount, createdAt, visibility).
+    - `snapshots/{snapshotId}` for lightweight daily aggregates (visits, uniqueUsers) updated via Cloud Functions to avoid heavy queries.
+  - Access: public read, write limited to venue owner or moderation function.
+
+- **checkins/{checkinId}** (global feed)
+  - Fields: userId, venueId, createdAt, visibility (public|friends|private), mood, caption, mediaRefs (array), likesCount, commentCount, badgeUnlocks (array).
+  - Access: write by the user only; read guarded by security rules that enforce visibility and friendship checks; stores only necessary feed data to keep document size small.
+
+- **users/{userId}/checkins/{checkinId}** (user-owned copies)
+  - Mirrors fields from the global collection so the user can list their history with a single query. Writes routed through Cloud Functions to avoid double writes by the client.
+
+- **friendships/{pairId}**
+  - Composite key (sorted user IDs) storing status (pending|accepted|blocked), requestedAt, respondedAt. Security rules make each participant the owner; used for visibility checks without scanning massive arrays.
+
+- **activities/{activityId}**
+  - Union feed for notifications (types: checkin, badgeUnlock, friendJoin). Stores actorId, type, targetIds, createdAt, visibility. Only the fan-out-ready subset lives here to avoid repeated Firestore reads on launch.
+
+- **badges/{badgeId}**
+  - Fields: name, description, iconUrl, unlockCriteria (JSON).
+  - Subcollection `progress/{userId}` updated only when thresholds move to reduce redundant writes.
+
+- **notifications/{userId}/items/{notificationId}**
+  - Fields: type, payload (checkinId, friendRequestId, etc.), createdAt, read, delivered. Indexed by createdAt so clients can page efficiently without scanning large result sets.
+
+- **messages/{threadId}/messages/{messageId}**
+  - Fields: senderId, text/plainText, attachments, createdAt, readBy array (small). Threads store participant IDs and lastMessage snapshot to keep list screens at one document read.
+
+### Storage Buckets
+- `/avatars/{userId}/...` for profile images (resized via Cloud Functions).
+- `/venues/{venueId}/...` for venue media.
+- `/checkins/{checkinId}/...` for trip photos. Metadata kept lean (contentType, owner, visibility) so security rules can enforce read access.
+
+### Cost Controls
+- Cache client-side lists (e.g., last 20 check-ins) and use composite indexes (`createdAt` with `userId` or `venueId`) to avoid expensive queries.
+- Use Cloud Functions to maintain counters (likesCount, commentCount, stats) so clients read a single doc instead of aggregating multiple subcollections.
+- Keep check-in media optional; only fetch Storage URLs on demand to limit billable operations.
+- Periodically archive old `activities` into Coldline Storage or BigQuery via scheduled functions if history grows large.
+
+### Security Principles
+- Firestore rules:
+  - `users`: allow read if profile `privacy.profile == public` or viewer is the user/friend. Allow update only to doc owner. Deny writes to `stats` from clients; Cloud Functions handle them.
+  - `checkins`: allow create if `request.auth.uid == userId`; allow read when visibility permits and viewer passes friendship check through `friendships` lookup. Deny deletes for records older than a grace period to preserve audit trails.
+  - `friendships`: both participants can read; only requester creates; responder updates status.
+  - `venues`: read allowed to all; writes restricted to owner or admin custom claim verified by function.
+  - `messages`: only thread participants read/write; require deterministic thread IDs to avoid duplicate chat docs.
+- Storage rules mirror Firestore ownership: users can write to their own avatar folder; check-in media inherits visibility through metadata set by Cloud Function.
+
+### Cloud Functions & Automation
+- Trigger on `checkins` create: validate visibility, write user-owned copy under `users/{userId}/checkins`, bump venue stats, compute badge progress, push notifications respecting privacy.
+- Trigger on `friendships` status change: create notification entries for the two users.
+- Scheduled function to recompute `venues/{venueId}.trendingScore` using recent check-ins without client writes.
+- Callable functions for privileged actions (venue claims, report moderation, multi-step badge unlocks) so clients never hold admin keys.
+
+### Indexing Checklist
+- Composite indexes:
+  - `checkins` on (`venueId`, `createdAt desc`) for venue timelines.
+  - `checkins` on (`userId`, `createdAt desc`, `visibility`).
+  - `activities` on (`type`, `createdAt desc`).
+  - `notifications` on (`userId`, `createdAt desc`).
+- Enable Firestore TTL on archival collections (e.g., `activities`) to auto-remove stale docs and cut storage costs.
+
+### Monitoring
+- Export Firestore usage metrics to BigQuery or Monitoring for anomaly alerts (unexpected write spikes).
+- Track Cloud Function invoices and set budget alerts so any runaway usage is caught early.
