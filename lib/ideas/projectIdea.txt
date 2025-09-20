@@ -1,7 +1,7 @@
 ## Pulse Differentiation Thoughts
 
 ### Phase 1 – Launch Foundations
-- EN: Embrace lightweight privacy controls (per-check-in visibility, temporary location sharing) to build trust with cautious users who abandoned always-on location apps.
+- EN: Embrace lightweight privacy controls (per-Pulse visibility, temporary location sharing) to build trust with cautious users who abandoned always-on location apps.
   TR: Her Pulse için görünürlük ve geçici konum paylaşımı gibi hafif gizlilik kontrolleri sunarak sürekli konum uygulamalarını terk eden temkinli kullanıcılarla güven inşa et.
 - EN: Integrate with broader social platforms via shareable stories or badges, but keep Pulse’s core value focused on real-world exploration, not abstract gamification.
   TR: Paylaşılabilir hikâyeler veya rozetler üzerinden geniş sosyal platformlarla entegre ol; ancak Pulse'ın temel değerini soyut oyunlaştırma yerine gerçek dünya keşfine odaklı tut.
@@ -9,8 +9,8 @@
 ### Phase 2 – Social Growth Loop
 - EN: Lean into collaborative exploration: let small friend groups plan outings together (shared checklists, polls) so Pulses are part of the planning flow, not the end result.
   TR: İşbirliğine dayalı keşfi öne çıkar: küçük arkadaş gruplarının birlikte plan yapmasına izin ver (paylaşılan kontrol listeleri, anketler); Pulse'lar son sonuç değil planlama sürecinin parçası olsun.
-- EN: Reward meaningful contributions, not just frequency: highlight detailed tips, photos, or accessibility info and surface them in venue profiles to avoid the check-in burnout that hurt Swarm.
-  TR: Sadece sıklığı değil anlamlı katkıları ödüllendir; detaylı ipuçlarını, fotoğrafları veya erişilebilirlik bilgilerini öne çıkar ve mekan profillerinde sergileyerek Swarm'ı yıpratan check-in yorgunluğundan kaçın.
+- EN: Reward meaningful contributions, not just frequency: highlight detailed tips, photos, or accessibility info and surface them in venue profiles to avoid the Pulse fatigue that hurt earlier check-in apps.
+  TR: Sadece sıklığı değil anlamlı katkıları ödüllendir; detaylı ipuçlarını, fotoğrafları veya erişilebilirlik bilgilerini öne çıkar ve mekan profillerinde sergileyerek eski check-in uygulamalarında görülen Pulse yorgunluğundan kaçın.
 - EN: Introduce creator/venue tools (featured guides, partner badges) to attract businesses and influencers, creating fresh content that keeps the feed lively.
   TR: İşletmeleri ve influencer'ları çekmek için öne çıkan rehberler, partner rozetleri gibi üretici/mekan araçları sun; böylece akışı canlı tutacak taze içerik üret.
 
