@@ -1,9 +1,31 @@
+import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/venue.dart';
 import '../providers/location_provider.dart';
+import '../providers/venue_search_provider.dart';
 
-class DiscoverScreen extends StatelessWidget {
+class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
+
+  @override
+  State<DiscoverScreen> createState() => _DiscoverScreenState();
+}
+
+class _DiscoverScreenState extends State<DiscoverScreen> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleLocationAction(BuildContext context) async {
     final provider = context.read<LocationProvider>();
@@ -66,92 +88,165 @@ class DiscoverScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locationProvider = context.watch<LocationProvider>();
-    final status = locationProvider.status;
+    final searchProvider = context.watch<VenueSearchProvider>();
 
-    Widget content;
+    if (_controller.text != searchProvider.query) {
+      _controller.value = TextEditingValue(
+        text: searchProvider.query,
+        selection: TextSelection.collapsed(offset: searchProvider.query.length),
+      );
+    }
 
-    if (locationProvider.isRequesting) {
-      content = const CircularProgressIndicator();
-    } else if (status == LocationStatus.granted &&
-        locationProvider.position != null) {
-      final position = locationProvider.position!;
-      content = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    final locationSection = _buildLocationSection(locationProvider);
+    final venues = searchProvider.results;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Discover')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: locationSection,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _controller,
+              onChanged: searchProvider.updateQuery,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                labelText: 'Search venues',
+                hintText: 'Try cafe, rooftop, or vegan',
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: venues.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No venues match your search yet. Try a different keyword.',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: venues.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final venue = venues[index];
+                        return _VenueTile(venue: venue);
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationSection(LocationProvider provider) {
+    final status = provider.status;
+
+    if (provider.isRequesting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (status == LocationStatus.granted && provider.position != null) {
+      final position = provider.position!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Location locked in!',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text('Latitude: ${position.latitude.toStringAsFixed(4)}'),
           Text('Longitude: ${position.longitude.toStringAsFixed(4)}'),
-          if (locationProvider.error != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              locationProvider.error!,
-              style: const TextStyle(color: Colors.red),
-            ),
+          if (provider.error != null) ...[
+            const SizedBox(height: 12),
+            Text(provider.error!, style: const TextStyle(color: Colors.red)),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           const Text(
             'MapLibre will use this position to highlight nearby Pulses and venues.',
-            textAlign: TextAlign.center,
-          ),
-        ],
-      );
-    } else {
-      String message;
-      switch (status) {
-        case LocationStatus.disabled:
-          message =
-              'Location services are turned off. Enable them to see nearby Pulses.';
-          break;
-        case LocationStatus.denied:
-          message = locationProvider.canRequestPermission
-              ? 'Pulse needs location access to surface nearby venues. Please grant permission.'
-              : 'Location access is denied. Use the button below to open settings and grant location access.';
-          break;
-        case LocationStatus.unknown:
-        case LocationStatus.granted:
-          message =
-              'Discover Pulses around you. Allow location access to start finding nearby venues.';
-          break;
-      }
-
-      content = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(message, textAlign: TextAlign.center),
-          if (locationProvider.error != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              locationProvider.error!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ],
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: locationProvider.isRequesting
-                ? null
-                : () => _handleLocationAction(context),
-            icon: const Icon(Icons.my_location),
-            label: Text(
-              status == LocationStatus.disabled
-                  ? 'Enable location services'
-                  : locationProvider.canRequestPermission
-                  ? 'Enable location'
-                  : 'Open settings',
-            ),
           ),
         ],
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Discover')),
-      body: Center(
-        child: Padding(padding: const EdgeInsets.all(24), child: content),
+    String message;
+    switch (status) {
+      case LocationStatus.disabled:
+        message =
+            'Location services are turned off. Enable them to see nearby Pulses.';
+        break;
+      case LocationStatus.denied:
+        message = provider.canRequestPermission
+            ? 'Pulse needs location access to surface nearby venues. Please grant permission.'
+            : 'Location access is denied. Use the button below to open settings and grant location access.';
+        break;
+      case LocationStatus.unknown:
+      case LocationStatus.granted:
+        message =
+            'Discover Pulses around you. Allow location access to start finding nearby venues.';
+        break;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(message),
+        if (provider.error != null) ...[
+          const SizedBox(height: 12),
+          Text(provider.error!, style: const TextStyle(color: Colors.red)),
+        ],
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: provider.isRequesting
+              ? null
+              : () => _handleLocationAction(context),
+          icon: Icon(
+            status == LocationStatus.disabled
+                ? Icons.settings
+                : Icons.my_location,
+          ),
+          label: Text(
+            status == LocationStatus.disabled
+                ? 'Enable location services'
+                : provider.canRequestPermission
+                ? 'Enable location'
+                : 'Open settings',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VenueTile extends StatelessWidget {
+  const _VenueTile({required this.venue});
+
+  final Venue venue;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        child: Text(venue.category.characters.first.toUpperCase()),
+      ),
+      title: Text(venue.name),
+      subtitle: Text('${venue.category} • ${venue.addressSummary}'),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('${venue.rating.average.toStringAsFixed(1)} ★'),
+          Text('${venue.rating.count} reviews'),
+        ],
       ),
     );
   }

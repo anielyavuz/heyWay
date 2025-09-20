@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'providers/location_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/venue_search_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/discover_screen.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
           create: (_) => ThemeProvider()..loadThemePreference(),
         ),
         ChangeNotifierProvider(create: (_) => LocationProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => VenueSearchProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
