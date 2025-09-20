@@ -41,6 +41,7 @@ dependencies:
   shared_preferences: ^2.3.3
   geolocator: ^10.1.0
   maplibre_gl: ^0.16.0
+  http: ^1.2.2
   provider: ^6.1.2
 
 dev_dependencies:

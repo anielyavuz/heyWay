@@ -2,6 +2,7 @@ import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
+
 import '../models/venue.dart';
 import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
@@ -160,6 +161,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      searchProvider.updateLocation(locationProvider.position);
       _refreshMap(searchProvider.results, locationProvider);
     });
 
@@ -191,7 +193,26 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 hintText: 'Try cafe, rooftop, or vegan',
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
+            if (!searchProvider.isRemoteEnabled)
+              const Text(
+                'Tip: set FOURSQUARE_API_KEY to fetch live venues.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            if (searchProvider.isLoading)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: LinearProgressIndicator(),
+              ),
+            if (searchProvider.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  searchProvider.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            const SizedBox(height: 8),
             Expanded(
               child: venues.isEmpty
                   ? const Center(
