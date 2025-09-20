@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^5.3.3
   firebase_storage: ^12.3.5
   shared_preferences: ^2.3.3
+  geolocator: ^10.1.0
   provider: ^6.1.2
 
 dev_dependencies:

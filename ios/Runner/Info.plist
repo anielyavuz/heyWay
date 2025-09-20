@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Pulse collects your location to show nearby venues and Pulses.</string>
 </dict>
 </plist>
