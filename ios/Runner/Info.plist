@@ -47,5 +47,7 @@
 	<true/>
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>Pulse collects your location to show nearby venues and Pulses.</string>
+  <key>GMSApiKey</key>
+  <string>AIzaSyAKMQ3yGrc4kBV1PGmxbINmppXu0UXECok</string>
 </dict>
 </plist>

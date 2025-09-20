@@ -40,9 +40,11 @@ dependencies:
   firebase_storage: ^12.3.5
   shared_preferences: ^2.3.3
   geolocator: ^10.1.0
-  maplibre_gl: ^0.16.0
+  google_maps_flutter: ^2.9.0
   http: ^1.2.2
   provider: ^6.1.2
+  image_picker: ^1.0.7
+  connectivity_plus: ^6.0.5
 
 dev_dependencies:
   flutter_test:

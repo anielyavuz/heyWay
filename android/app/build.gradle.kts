@@ -31,6 +31,12 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Load API key from api_keys.dart
+        def apiKeysFile = file("../../lib/config/api_keys.dart")
+        def apiKeysContent = apiKeysFile.text
+        def googleApiKey = (apiKeysContent =~ /googlePlacesApiKey = '([^']+)'/)[0][1]
+        manifestPlaceholders = [googlePlacesApiKey: googleApiKey]
     }
 
     buildTypes {

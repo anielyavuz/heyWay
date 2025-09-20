@@ -3,11 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
+import 'providers/auth_provider.dart' as app_auth;
 import 'providers/location_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/venue_search_provider.dart';
 import 'screens/home_screen.dart';
-import 'screens/account_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/discover_screen.dart';
 import 'screens/login_screen.dart';
 import 'firebase_options.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ThemeProvider()..loadThemePreference(),
         ),
+        ChangeNotifierProvider(create: (_) => app_auth.AuthProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => VenueSearchProvider()),
       ],
@@ -87,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
   static const _screens = <Widget>[
     HomeScreen(),
     DiscoverScreen(),
-    AccountScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -107,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.travel_explore),
             label: 'Discover',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

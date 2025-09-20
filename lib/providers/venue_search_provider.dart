@@ -1,19 +1,26 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 
-import '../config/api_keys.dart';
-import '../data/sample_venues.dart';
 import '../models/venue.dart';
-import '../services/foursquare_service.dart';
+import '../services/poi_provider.dart';
+import '../services/poi_provider_manager.dart';
+import '../services/venue_cache_service.dart';
+import '../services/firestore_service.dart';
 
 class VenueSearchProvider extends ChangeNotifier {
-  VenueSearchProvider({FoursquareService? service})
-    : _service = service ?? FoursquareService();
+  VenueSearchProvider({PoiProvider? poiProvider}) {
+    _poiProvider = poiProvider ?? PoiProviderManager();
+    _venueCacheService = VenueCacheService(
+      firestoreService: FirestoreService(),
+      poiProvider: _poiProvider,
+    );
+  }
 
-  final FoursquareService _service;
+  late final PoiProvider _poiProvider;
+  late final VenueCacheService _venueCacheService;
 
   String _query = '';
-  List<Venue> _results = sampleVenues;
+  List<Venue> _results = [];
   bool _isLoading = false;
   String? _errorMessage;
   double? _latitude;
@@ -23,7 +30,9 @@ class VenueSearchProvider extends ChangeNotifier {
   List<Venue> get results => _results;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  bool get isRemoteEnabled => _service.isEnabled;
+  bool get isRemoteEnabled => _poiProvider.isEnabled;
+  
+  String get providerName => _poiProvider.name;
 
   void updateLocation(Position? position) {
     if (position == null) return;
@@ -32,8 +41,10 @@ class VenueSearchProvider extends ChangeNotifier {
     if (_latitude == lat && _longitude == lng) return;
     _latitude = lat;
     _longitude = lng;
-    if (_query.trim().isNotEmpty && _service.isEnabled) {
+    if (_query.trim().isNotEmpty && _poiProvider.isEnabled) {
       _performSearch();
+    } else if (_query.trim().isEmpty && _poiProvider.isEnabled) {
+      _loadNearbyPopularVenues();
     }
   }
 
@@ -48,17 +59,17 @@ class VenueSearchProvider extends ChangeNotifier {
     if (trimmed.isEmpty) {
       _isLoading = false;
       _errorMessage = null;
-      _results = sampleVenues;
+      _results = [];
       notifyListeners();
       return;
     }
 
-    if (!_service.isEnabled || _latitude == null || _longitude == null) {
+    if (!_poiProvider.isEnabled || _latitude == null || _longitude == null) {
       _isLoading = false;
-      _errorMessage = _service.isEnabled
+      _errorMessage = _poiProvider.isEnabled
           ? null
-          : 'Set FOURSQUARE_API_KEY to fetch live venues.';
-      _results = _filterSample(trimmed);
+          : 'Provider: ${_poiProvider.name} - Configure API keys for live data.';
+      _results = [];
       notifyListeners();
       return;
     }
@@ -68,35 +79,70 @@ class VenueSearchProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final remote = await _service.search(
+      final remote = await _venueCacheService.searchVenuesWithCache(
         latitude: _latitude!,
         longitude: _longitude!,
         query: trimmed,
       );
 
-      if (remote.isEmpty) {
-        _results = _filterSample(trimmed);
-      } else {
-        _results = remote;
-      }
+      _results = remote;
     } catch (error) {
       _errorMessage = error.toString();
-      _results = _filterSample(trimmed);
+      _results = [];
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  List<Venue> _filterSample(String value) {
-    final trimmed = value.toLowerCase();
-    return sampleVenues.where((venue) {
-      final nameMatch = venue.name.toLowerCase().contains(trimmed);
-      final categoryMatch = venue.category.toLowerCase().contains(trimmed);
-      final amenityMatch = venue.amenities.whereType<String>().any(
-        (amenity) => amenity.toLowerCase().contains(trimmed),
-      );
-      return nameMatch || categoryMatch || amenityMatch;
-    }).toList();
+  Future<void> _loadNearbyPopularVenues() async {
+    if (!_poiProvider.isEnabled || _latitude == null || _longitude == null) {
+      return;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final List<Future<List<Venue>>> searches = [
+        // 2 cafes
+        _venueCacheService.searchVenuesWithCache(
+          latitude: _latitude!,
+          longitude: _longitude!,
+          query: 'cafe',
+        ),
+        // 2 restaurants
+        _venueCacheService.searchVenuesWithCache(
+          latitude: _latitude!,
+          longitude: _longitude!,
+          query: 'restaurant',
+        ),
+        // 2 entertainment venues
+        _venueCacheService.searchVenuesWithCache(
+          latitude: _latitude!,
+          longitude: _longitude!,
+          query: 'entertainment',
+        ),
+      ];
+
+      final results = await Future.wait(searches);
+      
+      final List<Venue> combinedResults = [];
+      
+      // Take 2 from each category
+      if (results[0].isNotEmpty) combinedResults.addAll(results[0].take(2));
+      if (results[1].isNotEmpty) combinedResults.addAll(results[1].take(2));
+      if (results[2].isNotEmpty) combinedResults.addAll(results[2].take(2));
+      
+      _results = combinedResults;
+    } catch (error) {
+      _errorMessage = error.toString();
+      _results = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
+
 }

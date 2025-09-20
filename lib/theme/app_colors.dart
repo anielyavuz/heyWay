@@ -25,8 +25,5 @@ class AppColors {
     content2: Color(0xFFF5D2D2),
   );
 
-  static const List<AppColorScheme> themes = [
-    light,
-    dark,
-  ];
+  static const List<AppColorScheme> themes = [light, dark];
 }

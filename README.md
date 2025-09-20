@@ -13,7 +13,7 @@ Pulse is a social navigation prototype merging location discovery and Pulse-styl
 2. For iOS: `cd ios && pod install --repo-update` (MapLibre pods required).
 3. Provide a Foursquare API key (optional, required for live venue search):
    - Create a developer account at https://location.foursquare.com/developer/
-   - Run the app with `flutter run --dart-define=FOURSQUARE_API_KEY=your_key_here`
+   - Paste the key into `lib/config/api_keys.dart` (`foursquareApiKey`) for local testing
    - Without a key, Pulse falls back to offline sample venues
 4. Launch: `flutter run` (grant location permissions on first launch).
 

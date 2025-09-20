@@ -1,9 +1,13 @@
 ## Pulse Differentiation Thoughts
 
-### Phase 1 – Launch Foundations
+### Phase 1 – Launch Foundations (COMPLETED CORE FEATURES)
+- [x] Migrated from Foursquare to Google Places API for better rate limits ($300/month free tier vs quick depletion)
+- [x] Implemented real-time search toggle ("Live" switch) to control API costs and usage patterns
+- [x] Fixed keyboard input issues and optimized search UX with proper state management
+- [x] Established venue search architecture with provider abstraction layer for future API swaps
 - EN: Embrace lightweight privacy controls (per-Pulse visibility, temporary location sharing) to build trust with cautious users who abandoned always-on location apps.
   TR: Her Pulse için görünürlük ve geçici konum paylaşımı gibi hafif gizlilik kontrolleri sunarak sürekli konum uygulamalarını terk eden temkinli kullanıcılarla güven inşa et.
-- EN: Integrate with broader social platforms via shareable stories or badges, but keep Pulse’s core value focused on real-world exploration, not abstract gamification.
+- EN: Integrate with broader social platforms via shareable stories or badges, but keep Pulse's core value focused on real-world exploration, not abstract gamification.
   TR: Paylaşılabilir hikâyeler veya rozetler üzerinden geniş sosyal platformlarla entegre ol; ancak Pulse'ın temel değerini soyut oyunlaştırma yerine gerçek dünya keşfine odaklı tut.
 
 ### Phase 2 – Social Growth Loop

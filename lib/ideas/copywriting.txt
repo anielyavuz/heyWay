@@ -1,0 +1,29 @@
+## Pulse Copywriting Guidelines
+
+### Core Terminology
+- **Pulse**: Always capitalized when referring to an action or feed item; avoid "check-in" unless comparing legacy apps.
+- **Pulse composer**: Use "Create Pulse" for buttons; never "Post" or "Check in".
+- **Pulse Feed**: Refer to a collection of Pulses as the "Pulse feed" or "Recent Pulses".
+- **Discover**: Screens that surface venues or Pulses should use "Discover" as the primary verb.
+
+### Tone & Voice
+- Friendly, optimistic, and action-oriented; focus on exploration and shared experiences.
+- Emphasize collaboration ("plan together", "share Pulses") while respecting privacy.
+- Keep microcopy short (under 45 characters where possible) and avoid jargon.
+
+### Privacy & Trust Language
+- Describe visibility settings as "Public", "Friends", "Private"—never expose technical terms like ACL or check-in.
+- When referencing temporary sharing, use "temporary location sharing" or "share for 1 hour".
+
+### Error & Status Messages
+- Use plain language: "We couldn't load your Pulses" instead of "Fetch failed".
+- Offer a clear next step ("Try again", "Check your connection").
+
+### Localization Notes
+- Turkish translations should mirror Pulse terminology (e.g., "Pulse" remains untranslated, combine with Turkish grammar: "Pulse oluştur", "Pulse paylaşıldı").
+- Keep parallel structure between EN and TR bullet lists in docs for easy comparison.
+
+### Usage Checklist
+- [ ] App titles and navigational labels use "Pulse" (verified in `lib/main.dart`, `lib/screens/home_screen.dart`).
+- [ ] Messaging surfaces "Pulses" instead of "check-ins" in documentation.
+- [ ] New features add EN/TR copy simultaneously using `EN:`/`TR:` format in idea docs.

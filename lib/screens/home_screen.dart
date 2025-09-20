@@ -6,7 +6,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pulse'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Pulse'),
+        centerTitle: true,
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -20,6 +23,7 @@ class HomeScreen extends StatelessWidget {
               'Your navigation and social discovery app',
               style: TextStyle(fontSize: 16),
             ),
+            SizedBox(height: 32),
           ],
         ),
       ),
