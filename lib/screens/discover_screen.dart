@@ -1,5 +1,6 @@
 import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
 import '../models/venue.dart';
 import '../providers/location_provider.dart';
@@ -14,6 +15,8 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   late final TextEditingController _controller;
+  MaplibreMapController? _mapController;
+  bool _mapReady = false;
 
   @override
   void initState() {
@@ -59,8 +62,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       positiveLabel = 'Enable';
     }
 
-    if (positiveAction == null) return;
-
     await showDialog<void>(
       context: context,
       builder: (context) {
@@ -85,6 +86,51 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
+  Future<void> _refreshMap(
+    List<Venue> venues,
+    LocationProvider locationProvider,
+  ) async {
+    final controller = _mapController;
+    if (!_mapReady || controller == null) return;
+
+    await controller.clearSymbols();
+
+    for (final venue in venues) {
+      final point = venue.location.geoPoint;
+      if (point == null) continue;
+      await controller.addSymbol(
+        SymbolOptions(
+          geometry: LatLng(point.latitude, point.longitude),
+          iconImage: 'marker-15',
+          iconSize: 1.2,
+          textField: venue.name,
+          textOffset: const Offset(0, 1.4),
+          textSize: 12,
+        ),
+      );
+    }
+
+    final position = locationProvider.position;
+    if (position != null) {
+      await controller.addSymbol(
+        SymbolOptions(
+          geometry: LatLng(position.latitude, position.longitude),
+          iconImage: 'marker-15',
+          iconColor: '#2F80ED',
+          textField: 'You',
+          textOffset: const Offset(0, 1.4),
+          textSize: 11,
+        ),
+      );
+      await controller.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(position.latitude, position.longitude),
+          13,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locationProvider = context.watch<LocationProvider>();
@@ -96,6 +142,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         selection: TextSelection.collapsed(offset: searchProvider.query.length),
       );
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _refreshMap(searchProvider.results, locationProvider);
+    });
 
     final locationSection = _buildLocationSection(locationProvider);
     final venues = searchProvider.results;
@@ -113,7 +164,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 child: locationSection,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            _buildMapSection(locationProvider, venues),
+            const SizedBox(height: 16),
             TextField(
               controller: _controller,
               onChanged: searchProvider.updateQuery,
@@ -168,7 +221,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           Text('Longitude: ${position.longitude.toStringAsFixed(4)}'),
           if (provider.error != null) ...[
             const SizedBox(height: 12),
-            Text(provider.error!, style: const TextStyle(color: Colors.red)),
+            Text(
+              provider.error!,
+              style: const TextStyle(color: Colors.red),
+            ),
           ],
           const SizedBox(height: 12),
           const Text(
@@ -202,27 +258,67 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         Text(message),
         if (provider.error != null) ...[
           const SizedBox(height: 12),
-          Text(provider.error!, style: const TextStyle(color: Colors.red)),
+          Text(
+            provider.error!,
+            style: const TextStyle(color: Colors.red),
+          ),
         ],
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          onPressed: provider.isRequesting
-              ? null
-              : () => _handleLocationAction(context),
+          onPressed:
+              provider.isRequesting ? null : () => _handleLocationAction(context),
           icon: Icon(
-            status == LocationStatus.disabled
-                ? Icons.settings
-                : Icons.my_location,
+            status == LocationStatus.disabled ? Icons.settings : Icons.my_location,
           ),
           label: Text(
             status == LocationStatus.disabled
                 ? 'Enable location services'
                 : provider.canRequestPermission
-                ? 'Enable location'
-                : 'Open settings',
+                    ? 'Enable location'
+                    : 'Open settings',
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMapSection(LocationProvider provider, List<Venue> venues) {
+    final position = provider.position;
+    if (!(provider.status == LocationStatus.granted && position != null)) {
+      return Container(
+        height: 220,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade200,
+        ),
+        alignment: Alignment.center,
+        child: const Text(
+          'Allow location access to preview nearby venues on the map.',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        height: 220,
+        child: MaplibreMap(
+          styleString: 'https://demotiles.maplibre.org/style.json',
+          initialCameraPosition: CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 13,
+          ),
+          onMapCreated: (controller) {
+            _mapController = controller;
+            _mapReady = true;
+            _refreshMap(venues, provider);
+          },
+          myLocationEnabled: false,
+          compassEnabled: true,
+          rotateGesturesEnabled: true,
+        ),
+      ),
     );
   }
 }
