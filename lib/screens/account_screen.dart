@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/location_provider.dart';
 import '../providers/theme_provider.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -9,6 +10,7 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Account'), centerTitle: true),
@@ -51,6 +53,21 @@ class AccountScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.explore),
+                title: const Text('Use static demo location'),
+                subtitle: const Text(
+                  'Toggle to preview nearby Pulses from the Kadıköy coastline.',
+                ),
+                trailing: Switch(
+                  value: locationProvider.useStaticLocation,
+                  onChanged: (value) {
+                    locationProvider.setUseStaticLocation(value);
+                  },
+                ),
+              ),
+            ),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.logout),

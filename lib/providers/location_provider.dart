@@ -15,18 +15,38 @@ class LocationProvider extends ChangeNotifier {
   bool _isRequesting = false;
   String? _error;
   LocationPermission _lastPermission = LocationPermission.denied;
+  bool _useStaticLocation = false;
 
   LocationStatus get status => _status;
   Position? get position => _position;
   bool get isRequesting => _isRequesting;
   String? get error => _error;
+  bool get useStaticLocation => _useStaticLocation;
   bool get canRequestPermission =>
       _lastPermission != LocationPermission.deniedForever;
-
   bool get isDeniedForever =>
       _lastPermission == LocationPermission.deniedForever;
 
+  static Position _staticPosition() => Position(
+    latitude: 40.936,
+    longitude: 29.155,
+    timestamp: DateTime.now(),
+    accuracy: 1,
+    altitude: 0,
+    heading: 0,
+    speed: 0,
+    speedAccuracy: 0,
+    altitudeAccuracy: 0,
+    headingAccuracy: 0,
+    isMocked: true,
+  );
+
   Future<void> initialize() async {
+    if (_useStaticLocation) {
+      _applyStaticLocation();
+      return;
+    }
+
     final enabled = await _service.isServiceEnabled();
     if (!enabled) {
       _status = LocationStatus.disabled;
@@ -49,7 +69,7 @@ class LocationProvider extends ChangeNotifier {
   }
 
   Future<void> requestPermissionAndFetch() async {
-    if (_isRequesting) return;
+    if (_useStaticLocation || _isRequesting) return;
     _isRequesting = true;
     _error = null;
     notifyListeners();
@@ -95,5 +115,23 @@ class LocationProvider extends ChangeNotifier {
 
   Future<void> openLocationSettings() async {
     await _service.openLocationSettings();
+  }
+
+  Future<void> setUseStaticLocation(bool value) async {
+    if (_useStaticLocation == value) return;
+    _useStaticLocation = value;
+    if (value) {
+      _applyStaticLocation();
+    } else {
+      await initialize();
+    }
+  }
+
+  void _applyStaticLocation() {
+    _status = LocationStatus.granted;
+    _position = _staticPosition();
+    _error = null;
+    _lastPermission = LocationPermission.always;
+    notifyListeners();
   }
 }

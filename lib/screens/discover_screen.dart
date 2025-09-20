@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/venue.dart';
 import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
+import '../theme/map_styles.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -86,6 +87,20 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
+  Future<void> _zoomIn() async {
+    final controller = _mapController;
+    if (_mapReady && controller != null) {
+      await controller.animateCamera(CameraUpdate.zoomIn());
+    }
+  }
+
+  Future<void> _zoomOut() async {
+    final controller = _mapController;
+    if (_mapReady && controller != null) {
+      await controller.animateCamera(CameraUpdate.zoomOut());
+    }
+  }
+
   Future<void> _refreshMap(
     List<Venue> venues,
     LocationProvider locationProvider,
@@ -165,7 +180,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildMapSection(locationProvider, venues),
+            _buildMapSection(context, locationProvider, venues),
             const SizedBox(height: 16),
             TextField(
               controller: _controller,
@@ -221,10 +236,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           Text('Longitude: ${position.longitude.toStringAsFixed(4)}'),
           if (provider.error != null) ...[
             const SizedBox(height: 12),
-            Text(
-              provider.error!,
-              style: const TextStyle(color: Colors.red),
-            ),
+            Text(provider.error!, style: const TextStyle(color: Colors.red)),
           ],
           const SizedBox(height: 12),
           const Text(
@@ -258,31 +270,35 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         Text(message),
         if (provider.error != null) ...[
           const SizedBox(height: 12),
-          Text(
-            provider.error!,
-            style: const TextStyle(color: Colors.red),
-          ),
+          Text(provider.error!, style: const TextStyle(color: Colors.red)),
         ],
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          onPressed:
-              provider.isRequesting ? null : () => _handleLocationAction(context),
+          onPressed: provider.isRequesting
+              ? null
+              : () => _handleLocationAction(context),
           icon: Icon(
-            status == LocationStatus.disabled ? Icons.settings : Icons.my_location,
+            status == LocationStatus.disabled
+                ? Icons.settings
+                : Icons.my_location,
           ),
           label: Text(
             status == LocationStatus.disabled
                 ? 'Enable location services'
                 : provider.canRequestPermission
-                    ? 'Enable location'
-                    : 'Open settings',
+                ? 'Enable location'
+                : 'Open settings',
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMapSection(LocationProvider provider, List<Venue> venues) {
+  Widget _buildMapSection(
+    BuildContext context,
+    LocationProvider provider,
+    List<Venue> venues,
+  ) {
     final position = provider.position;
     if (!(provider.status == LocationStatus.granted && position != null)) {
       return Container(
@@ -303,20 +319,41 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         height: 220,
-        child: MaplibreMap(
-          styleString: 'https://demotiles.maplibre.org/style.json',
-          initialCameraPosition: CameraPosition(
-            target: LatLng(position.latitude, position.longitude),
-            zoom: 13,
-          ),
-          onMapCreated: (controller) {
-            _mapController = controller;
-            _mapReady = true;
-            _refreshMap(venues, provider);
-          },
-          myLocationEnabled: false,
-          compassEnabled: true,
-          rotateGesturesEnabled: true,
+        child: Stack(
+          children: [
+            MaplibreMap(
+              styleString: MapStyles.styleForBrightness(
+                Theme.of(context).brightness,
+              ),
+              initialCameraPosition: CameraPosition(
+                target: LatLng(position.latitude, position.longitude),
+                zoom: 13,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+                _mapReady = false;
+              },
+              onStyleLoadedCallback: () {
+                _mapReady = true;
+                _refreshMap(venues, provider);
+              },
+              myLocationEnabled: false,
+              compassEnabled: true,
+              rotateGesturesEnabled: true,
+              minMaxZoomPreference: const MinMaxZoomPreference(5, 18),
+            ),
+            Positioned(
+              right: 8,
+              bottom: 8,
+              child: Column(
+                children: [
+                  _MapZoomButton(icon: Icons.add, onPressed: _zoomIn),
+                  const SizedBox(height: 8),
+                  _MapZoomButton(icon: Icons.remove, onPressed: _zoomOut),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -343,6 +380,26 @@ class _VenueTile extends StatelessWidget {
           Text('${venue.rating.average.toStringAsFixed(1)} ★'),
           Text('${venue.rating.count} reviews'),
         ],
+      ),
+    );
+  }
+}
+
+class _MapZoomButton extends StatelessWidget {
+  const _MapZoomButton({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: Material(
+        color: Colors.white.withOpacity(0.9),
+        child: InkWell(
+          onTap: onPressed,
+          child: SizedBox(width: 40, height: 40, child: Icon(icon, size: 20)),
+        ),
       ),
     );
   }
