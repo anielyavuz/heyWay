@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/venue.dart';
 import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
+import 'pulse_composer_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -23,7 +24,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   bool _realtimeSearch =
       false; // Control real-time vs on-submit search (default OFF to save API limits)
   bool _isMapMode =
-      true; // Toggle between text list and map view (default map mode)
+      false; // Toggle between text list and map view (default text mode)
 
   @override
   void initState() {
@@ -317,18 +318,33 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     List<Venue> venues,
     VenueSearchProvider searchProvider,
   ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildMapSection(context, locationProvider, venues),
-          const SizedBox(height: 16),
           _buildSearchField(searchProvider),
           const SizedBox(height: 8),
           _buildSearchInfo(searchProvider),
-          const SizedBox(height: 8),
-          _buildVenueList(venues),
+          const SizedBox(height: 16),
+          Expanded(
+            child: venues.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Search for cafes, restaurants, or entertainment venues nearby.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  )
+                : ListView.separated(
+                    itemCount: venues.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final venue = venues[index];
+                      return _VenueTile(venue: venue);
+                    },
+                  ),
+          ),
         ],
       ),
     );
@@ -412,11 +428,18 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.4,
-        minChildSize: 0.2,
-        maxChildSize: 0.8,
-        builder: (context, scrollController) => Container(
+      enableDrag: true,
+      useSafeArea: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.4,
+          minChildSize: 0.2,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -471,6 +494,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -545,27 +569,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
-  Widget _buildVenueList(List<Venue> venues) {
-    return SizedBox(
-      height: 400,
-      child: venues.isEmpty
-          ? const Center(
-              child: Text(
-                'No venues found. Search for cafes, restaurants, or entertainment venues.',
-                textAlign: TextAlign.center,
-              ),
-            )
-          : ListView.separated(
-              itemCount: venues.length,
-              separatorBuilder: (_, __) => const Divider(),
-              itemBuilder: (context, index) {
-                final venue = venues[index];
-                return _VenueTile(venue: venue);
-              },
-            ),
-    );
-  }
-
   Widget _buildFullScreenMap(
     BuildContext context,
     LocationProvider provider,
@@ -637,90 +640,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           child: _MapTypeSelector(onTypeChanged: _changeMapType),
         ),
       ],
-    );
-  }
-
-  Widget _buildMapSection(
-    BuildContext context,
-    LocationProvider provider,
-    List<Venue> venues,
-  ) {
-    debugPrint('_buildMapSection called with status: ${provider.status}');
-    final position = _getEffectivePosition(provider);
-    debugPrint('_buildMapSection position: $position');
-
-    if (!((provider.status == LocationStatus.granted &&
-            provider.position != null) ||
-        _useStaticLocation)) {
-      return Container(
-        height: 220,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.shade200,
-        ),
-        alignment: Alignment.center,
-        child: const Text(
-          'Allow location access to preview nearby venues on the map.',
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: SizedBox(
-        height: 220,
-        child: Stack(
-          children: [
-            GoogleMap(
-              onMapCreated: (GoogleMapController controller) {
-                _mapController = controller;
-              },
-              initialCameraPosition: CameraPosition(
-                target: LatLng(position!.latitude, position.longitude),
-                zoom: 15.0,
-              ),
-              mapType: _currentMapType,
-              markers: _buildMarkers(venues, position),
-              myLocationEnabled:
-                  false, // Disable for now to avoid permission issues
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-            ),
-            Positioned(
-              right: 8,
-              bottom: 8,
-              child: Column(
-                children: [
-                  _MapControlButton(
-                    icon: Icons.add,
-                    onPressed: _zoomIn,
-                    tooltip: 'Zoom In',
-                  ),
-                  const SizedBox(height: 4),
-                  _MapControlButton(
-                    icon: Icons.remove,
-                    onPressed: _zoomOut,
-                    tooltip: 'Zoom Out',
-                  ),
-                  const SizedBox(height: 4),
-                  _MapControlButton(
-                    icon: Icons.my_location,
-                    onPressed: _centerOnUser,
-                    tooltip: 'Center on Location',
-                  ),
-                ],
-              ),
-            ),
-            // Map type selector
-            Positioned(
-              top: 8,
-              right: 8,
-              child: _MapTypeSelector(onTypeChanged: _changeMapType),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -802,6 +721,26 @@ class _VenueTile extends StatelessWidget {
               ),
             ],
           ],
+        ),
+        trailing: IconButton(
+          onPressed: () async {
+            final result = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PulseComposerScreen(venue: venue),
+              ),
+            );
+
+            if (result == true && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('🎉 Pulse shared successfully!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+          icon: const Icon(Icons.favorite, color: Colors.red),
+          tooltip: 'Share Pulse',
         ),
         isThreeLine: true,
       ),

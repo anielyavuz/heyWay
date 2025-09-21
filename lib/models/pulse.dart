@@ -65,6 +65,7 @@ class Pulse {
   final DateTime? createdAt;
 
   Pulse copyWith({
+    String? id,
     String? caption,
     String? mood,
     String? visibility,
@@ -75,7 +76,7 @@ class Pulse {
     DateTime? createdAt,
   }) {
     return Pulse(
-      id: id,
+      id: id ?? this.id,
       userId: userId,
       venueId: venueId,
       caption: caption ?? this.caption,

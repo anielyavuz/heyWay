@@ -1,0 +1,243 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for authentication and authorization
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    function isUser(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+    
+    function hasCustomClaim(claim) {
+      return isAuth() && claim in request.auth.token && request.auth.token[claim] == true;
+    }
+    
+    function isAdmin() {
+      return hasCustomClaim('admin');
+    }
+    
+    function isModerator() {
+      return hasCustomClaim('moderator') || isAdmin();
+    }
+    
+    // Check if user is friend with another user
+    function isFriend(userId) {
+      let pairId = request.auth.uid < userId 
+        ? request.auth.uid + '_' + userId 
+        : userId + '_' + request.auth.uid;
+      return exists(/databases/$(database)/documents/friendships/$(pairId)) && 
+             get(/databases/$(database)/documents/friendships/$(pairId)).data.status == 'accepted';
+    }
+    
+    // Check user privacy settings
+    function canReadProfile(userId) {
+      let user = get(/databases/$(database)/documents/users/$(userId));
+      return user.data.privacy.profile == 'public' || 
+             isUser(userId) || 
+             (user.data.privacy.profile == 'friends' && isFriend(userId));
+    }
+    
+    function canReadPulses(userId) {
+      let user = get(/databases/$(database)/documents/users/$(userId));
+      return user.data.privacy.pulses == 'public' || 
+             isUser(userId) || 
+             (user.data.privacy.pulses == 'friends' && isFriend(userId));
+    }
+    
+    // ======== USERS COLLECTION ========
+    match /users/{userId} {
+      // Read: public profile OR own profile OR friend profile
+      allow read: if canReadProfile(userId);
+      
+      // Create: only when creating own profile during registration
+      allow create: if isUser(userId) && 
+                       request.resource.data.keys().hasAll(['displayName', 'privacy', 'stats', 'lastActive']) &&
+                       request.resource.data.stats.keys().hasAll(['pulseCount', 'friendCount', 'badgeCount']) &&
+                       request.resource.data.stats.pulseCount == 0 &&
+                       request.resource.data.stats.friendCount == 0 &&
+                       request.resource.data.stats.badgeCount == 0;
+      
+      // Update: only own profile and cannot update stats (Cloud Functions only)
+      allow update: if isUser(userId) && 
+                       !('stats' in request.resource.data.diff(resource.data).affectedKeys()) &&
+                       request.resource.data.lastActive is timestamp;
+      
+      // Delete: not allowed (soft delete via Cloud Functions if needed)
+      allow delete: if false;
+      
+      // User's pulses subcollection (user-owned copies)
+      match /pulses/{pulseId} {
+        // Read: only own pulses
+        allow read: if isUser(userId);
+        
+        // Write: only Cloud Functions can write here
+        allow write: if false;
+      }
+      
+      // User's notifications subcollection
+      match /notifications/{notificationId} {
+        // Read: only own notifications
+        allow read: if isUser(userId);
+        
+        // Create: only Cloud Functions can create notifications
+        allow create: if false;
+        
+        // Update: only to mark as read
+        allow update: if isUser(userId) && 
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) &&
+                         request.resource.data.read == true;
+        
+        // Delete: own notifications only
+        allow delete: if isUser(userId);
+      }
+    }
+    
+    // ======== VENUES COLLECTION ========
+    match /venues/{venueId} {
+      // Read: public access for all venues
+      allow read: if true;
+      
+      // Create: authenticated users can create venues (POI caching)
+      allow create: if isAuth() && 
+                       request.resource.data.keys().hasAll(['name', 'category', 'location']) &&
+                       request.resource.data.location.keys().hasAll(['geoPoint']);
+      
+      // Update: venue owner or moderators only
+      allow update: if isAuth() && (
+                       ('ownerId' in resource.data && isUser(resource.data.ownerId)) ||
+                       isModerator()
+                     );
+      
+      // Delete: moderators only
+      allow delete: if isModerator();
+      
+      // Venue tips subcollection
+      match /tips/{tipId} {
+        // Read: public access
+        allow read: if true;
+        
+        // Create: authenticated users only
+        allow create: if isAuth() && 
+                         isUser(request.resource.data.authorId) &&
+                         request.resource.data.keys().hasAll(['authorId', 'text', 'createdAt', 'visibility']) &&
+                         request.resource.data.likeCount == 0;
+        
+        // Update: tip author or moderators (for like count updates via Cloud Functions)
+        allow update: if isUser(resource.data.authorId) || isModerator();
+        
+        // Delete: tip author or moderators
+        allow delete: if isUser(resource.data.authorId) || isModerator();
+      }
+      
+      // Venue snapshots subcollection (Cloud Functions only)
+      match /snapshots/{snapshotId} {
+        allow read: if true;
+        allow write: if false; // Only Cloud Functions
+      }
+    }
+    
+    // ======== PULSES COLLECTION (Global feed) ========
+    match /pulses/{pulseId} {
+      // Read: based on visibility and friendship
+      allow read: if resource.data.visibility == 'public' ||
+                     (isAuth() && isUser(resource.data.userId)) ||
+                     (isAuth() && resource.data.visibility == 'friends' && isFriend(resource.data.userId));
+      
+      // Create: authenticated users creating their own pulses
+      allow create: if isAuth() && 
+                       isUser(request.resource.data.userId) &&
+                       request.resource.data.keys().hasAll(['userId', 'venueId', 'createdAt', 'visibility']) &&
+                       request.resource.data.visibility in ['public', 'friends', 'private'] &&
+                       request.resource.data.likesCount == 0 &&
+                       request.resource.data.commentCount == 0;
+      
+      // Update: pulse author for editing, Cloud Functions for stats
+      allow update: if isUser(resource.data.userId) || 
+                       // Allow Cloud Functions to update stats only
+                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentCount', 'badgeUnlocks']));
+      
+      // Delete: pulse author within grace period (24 hours) or moderators
+      allow delete: if (isUser(resource.data.userId) && 
+                       (request.time.toMillis() - resource.data.createdAt.toMillis()) < 86400000) ||
+                      isModerator();
+    }
+    
+    // ======== FRIENDSHIPS COLLECTION ========
+    match /friendships/{pairId} {
+      // Composite key should be sorted user IDs
+      function getUserIds() {
+        return pairId.split('_');
+      }
+      
+      function isParticipant() {
+        let userIds = getUserIds();
+        return isAuth() && (request.auth.uid == userIds[0] || request.auth.uid == userIds[1]);
+      }
+      
+      // Read: both participants can read
+      allow read: if isParticipant();
+      
+      // Create: requester creates friendship request
+      allow create: if isAuth() && 
+                       isParticipant() &&
+                       request.resource.data.keys().hasAll(['status', 'requestedAt']) &&
+                       request.resource.data.status == 'pending';
+      
+      // Update: responder can accept/decline, either can block
+      allow update: if isParticipant() && 
+                       request.resource.data.status in ['accepted', 'blocked', 'declined'] &&
+                       'respondedAt' in request.resource.data;
+      
+      // Delete: either participant can delete
+      allow delete: if isParticipant();
+    }
+    
+    // ======== ACTIVITIES COLLECTION ========
+    match /activities/{activityId} {
+      // Read: public activities or activities involving the user
+      allow read: if resource.data.visibility == 'public' ||
+                     (isAuth() && request.auth.uid in resource.data.targetIds) ||
+                     (isAuth() && isUser(resource.data.actorId));
+      
+      // Write: only Cloud Functions
+      allow write: if false;
+    }
+    
+    // ======== BADGES COLLECTION ========
+    match /badges/{badgeId} {
+      // Read: public access to badge definitions
+      allow read: if true;
+      
+      // Write: admins only
+      allow write: if isAdmin();
+      
+      // Badge progress subcollection
+      match /progress/{userId} {
+        // Read: own progress only
+        allow read: if isUser(userId);
+        
+        // Write: only Cloud Functions
+        allow write: if false;
+      }
+    }
+    
+    // ======== MESSAGES COLLECTION (Future) ========
+    match /messages/{threadId} {
+      // Basic structure for future messaging
+      allow read, write: if false; // Implement when messaging is ready
+      
+      match /messages/{messageId} {
+        allow read, write: if false; // Implement when messaging is ready
+      }
+    }
+    
+    // ======== DENY ALL OTHER PATHS ========
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

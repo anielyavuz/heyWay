@@ -44,7 +44,37 @@ class VenueSearchProvider extends ChangeNotifier {
     if (_query.trim().isNotEmpty && _poiProvider.isEnabled) {
       _performSearch();
     } else if (_query.trim().isEmpty && _poiProvider.isEnabled) {
-      _loadNearbyPopularVenues();
+      loadNearbyPopularVenues();
+    }
+  }
+
+  Future<void> getCurrentLocationAndUpdate() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+    } catch (e) {
+      // Handle location errors silently
     }
   }
 
@@ -95,8 +125,8 @@ class VenueSearchProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _loadNearbyPopularVenues() async {
-    if (!_poiProvider.isEnabled || _latitude == null || _longitude == null) {
+  Future<void> loadNearbyPopularVenues() async {
+    if (_latitude == null || _longitude == null) {
       return;
     }
 
@@ -105,40 +135,92 @@ class VenueSearchProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final List<Future<List<Venue>>> searches = [
-        // 2 cafes
-        _venueCacheService.searchVenuesWithCache(
-          latitude: _latitude!,
-          longitude: _longitude!,
-          query: 'cafe',
-        ),
-        // 2 restaurants
-        _venueCacheService.searchVenuesWithCache(
-          latitude: _latitude!,
-          longitude: _longitude!,
-          query: 'restaurant',
-        ),
-        // 2 entertainment venues
-        _venueCacheService.searchVenuesWithCache(
-          latitude: _latitude!,
-          longitude: _longitude!,
-          query: 'entertainment',
-        ),
-      ];
+      // Use the new cache-first approach for popular venues
+      final popularVenues = await _venueCacheService.getNearbyPopularVenues(
+        latitude: _latitude!,
+        longitude: _longitude!,
+        limit: 6, // Get 6 popular venues
+      );
 
-      final results = await Future.wait(searches);
-      
-      final List<Venue> combinedResults = [];
-      
-      // Take 2 from each category
-      if (results[0].isNotEmpty) combinedResults.addAll(results[0].take(2));
-      if (results[1].isNotEmpty) combinedResults.addAll(results[1].take(2));
-      if (results[2].isNotEmpty) combinedResults.addAll(results[2].take(2));
-      
-      _results = combinedResults;
+      // If we have cached popular venues, use them
+      if (popularVenues.isNotEmpty) {
+        _results = popularVenues;
+      } else {
+        // Fallback to category-based search only if POI provider is enabled
+        if (_poiProvider.isEnabled) {
+          final List<Future<List<Venue>>> searches = [
+            // 2 cafes
+            _venueCacheService.searchVenuesWithCache(
+              latitude: _latitude!,
+              longitude: _longitude!,
+              query: 'cafe',
+              forceCache: false, // Allow fresh data for initial load
+            ),
+            // 2 restaurants
+            _venueCacheService.searchVenuesWithCache(
+              latitude: _latitude!,
+              longitude: _longitude!,
+              query: 'restaurant',
+              forceCache: false,
+            ),
+            // 2 entertainment venues
+            _venueCacheService.searchVenuesWithCache(
+              latitude: _latitude!,
+              longitude: _longitude!,
+              query: 'entertainment',
+              forceCache: false,
+            ),
+          ];
+
+          final results = await Future.wait(searches);
+          
+          final List<Venue> combinedResults = [];
+          
+          // Take 2 from each category
+          if (results[0].isNotEmpty) combinedResults.addAll(results[0].take(2));
+          if (results[1].isNotEmpty) combinedResults.addAll(results[1].take(2));
+          if (results[2].isNotEmpty) combinedResults.addAll(results[2].take(2));
+          
+          _results = combinedResults;
+        } else {
+          // No POI provider and no cache, show empty state
+          _results = [];
+        }
+      }
     } catch (error) {
       _errorMessage = error.toString();
       _results = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadMoreNearbyVenues() async {
+    if (_latitude == null || _longitude == null || _isLoading) {
+      return;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Load more venues with higher limit
+      final moreVenues = await _venueCacheService.getNearbyPopularVenues(
+        latitude: _latitude!,
+        longitude: _longitude!,
+        limit: 20, // Get more venues
+      );
+
+      if (moreVenues.isNotEmpty) {
+        // Remove duplicates and add new venues
+        final currentIds = _results.map((v) => v.id).toSet();
+        final newVenues = moreVenues.where((v) => !currentIds.contains(v.id)).toList();
+        _results.addAll(newVenues);
+      }
+    } catch (error) {
+      _errorMessage = error.toString();
     } finally {
       _isLoading = false;
       notifyListeners();

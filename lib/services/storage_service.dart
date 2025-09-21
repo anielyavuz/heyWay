@@ -48,6 +48,28 @@ class StorageService {
     }
   }
 
+  Future<String?> uploadPulseMedia({
+    required File file,
+    required String pulseId,
+    required String fileName,
+  }) async {
+    try {
+      final ref = _storage
+          .ref()
+          .child('pulses')
+          .child(pulseId)
+          .child(fileName);
+      
+      final uploadTask = ref.putFile(file);
+      final snapshot = await uploadTask;
+      
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      debugPrint('Error uploading pulse media: $e');
+      return null;
+    }
+  }
+
   Future<List<String>> uploadMultipleImages(
     String userId,
     String pulseId,

@@ -14,15 +14,15 @@ class AppColorScheme {
 
 class AppColors {
   static const AppColorScheme light = AppColorScheme(
-    background: Color(0xFF19183B),
-    content1: Color(0xFF31326F),
-    content2: Color(0xFFA8FBD3),
+    background: Color(0xFFFFF5F8),
+    content1: Color(0xFF2D1A3C),
+    content2: Color(0xFFE25598),
   );
 
   static const AppColorScheme dark = AppColorScheme(
-    background: Color(0xFF3E1E68),
-    content1: Color(0xFFE45A92),
-    content2: Color(0xFFF5D2D2),
+    background: Color(0xFF241028),
+    content1: Color(0xFFFBE5F1),
+    content2: Color(0xFFF778B8),
   );
 
   static const List<AppColorScheme> themes = [light, dark];

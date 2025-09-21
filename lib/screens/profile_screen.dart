@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/app_user.dart';
 import '../providers/auth_provider.dart';
 import '../services/firestore_service.dart';
 import 'edit_profile_screen.dart';
+import 'friends_screen.dart';
+import 'logs_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -125,6 +128,39 @@ class _ProfileContent extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
+        const SizedBox(height: 8),
+        Builder(
+          builder: (context) => GestureDetector(
+            onTap: () => _copyUserIdToClipboard(context, user.id),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.copy,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'ID: ${user.id.length > 12 ? "${user.id.substring(0, 12)}..." : user.id}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -227,6 +263,38 @@ class _ProfileContent extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FriendsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.people),
+            label: const Text('Friends'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LogsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bug_report),
+            label: const Text('Debug Logs'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -250,6 +318,16 @@ class _ProfileContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _copyUserIdToClipboard(BuildContext context, String userId) {
+    Clipboard.setData(ClipboardData(text: userId));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User ID copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 
