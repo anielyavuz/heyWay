@@ -20,7 +20,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   late final FocusNode _focusNode;
   GoogleMapController? _mapController;
   MapType _currentMapType = MapType.normal;
-  bool _useStaticLocation = false;
+  final bool _useStaticLocation = false;
   bool _realtimeSearch =
       false; // Control real-time vs on-submit search (default OFF to save API limits)
   bool _isMapMode =
@@ -85,6 +85,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     });
   }
 
+  Future<void> _sharePulse(BuildContext context, Venue venue) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PulseComposerScreen(venue: venue),
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎉 Pulse paylaşıldı!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   Set<Marker> _buildMarkers(List<Venue> venues, Position? userPosition) {
     final markers = <Marker>{};
 
@@ -127,72 +144,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     }
 
     return markers;
-  }
-
-  double _getVenueHue(String category) {
-    switch (category.toLowerCase()) {
-      case 'café':
-      case 'cafe':
-      case 'coffee shop':
-        return BitmapDescriptor.hueOrange; // Brown/Orange for cafes
-      case 'restaurant':
-      case 'food':
-        return BitmapDescriptor.hueRed; // Red for restaurants
-      case 'bar':
-      case 'nightlife':
-        return BitmapDescriptor.hueViolet; // Purple for bars
-      case 'hotel':
-      case 'lodging':
-        return BitmapDescriptor.hueBlue; // Blue for hotels
-      case 'shop':
-      case 'shopping':
-        return BitmapDescriptor.hueRose; // Pink for shops
-      case 'entertainment':
-      case 'arts':
-        return BitmapDescriptor.hueYellow; // Yellow for entertainment
-      default:
-        return BitmapDescriptor.hueGreen; // Green for others
-    }
-  }
-
-  String _getVenueEmoji(String category) {
-    switch (category.toLowerCase()) {
-      case 'café':
-      case 'cafe':
-      case 'coffee shop':
-        return '☕️';
-      case 'restaurant':
-      case 'food':
-        return '🍽️';
-      case 'bar':
-      case 'nightlife':
-      case 'night_club':
-        return '🍺';
-      case 'hotel':
-      case 'lodging':
-        return '🏨';
-      case 'shop':
-      case 'shopping':
-        return '🛍️';
-      case 'entertainment':
-      case 'arts':
-      case 'tourist_attraction':
-        return '🎭';
-      case 'gym':
-      case 'fitness':
-        return '💪';
-      case 'hospital':
-      case 'health':
-        return '🏥';
-      case 'bank':
-        return '🏦';
-      case 'gas_station':
-        return '⛽';
-      case 'parking':
-        return '🅿️';
-      default:
-        return '📍';
-    }
   }
 
   @override
@@ -319,29 +270,31 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     VenueSearchProvider searchProvider,
   ) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSearchField(searchProvider),
-          const SizedBox(height: 8),
-          _buildSearchInfo(searchProvider),
           const SizedBox(height: 16),
+          _DiscoverSearchPanel(
+            searchProvider: searchProvider,
+            resultCount: venues.length,
+            useStaticLocation: _useStaticLocation,
+            isRealtimeSearch: _realtimeSearch,
+            buildSearchField: () => _buildSearchField(context, searchProvider),
+          ),
+          const SizedBox(height: 20),
           Expanded(
             child: venues.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Search for cafes, restaurants, or entertainment venues nearby.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
+                ? const _DiscoverEmptyState()
                 : ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 24),
                     itemCount: venues.length,
-                    separatorBuilder: (_, __) => const Divider(),
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final venue = venues[index];
-                      return _VenueTile(venue: venue);
+                      return _VenueCard(
+                        venue: venue,
+                        onSharePulse: () => _sharePulse(context, venue),
+                      );
                     },
                   ),
           ),
@@ -356,6 +309,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     List<Venue> venues,
     VenueSearchProvider searchProvider,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -368,23 +324,31 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             child: GestureDetector(
               onTap: () => _showSearchModal(context, searchProvider, venues),
               child: Container(
-                width: 56,
-                height: 56,
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(28),
+                  gradient: LinearGradient(
+                    colors: [colorScheme.primary, colorScheme.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(29),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      color: colorScheme.primary.withValues(alpha: 0.28),
+                      blurRadius: 18,
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
                 child: Stack(
                   children: [
-                    const Center(
-                      child: Icon(Icons.search, color: Colors.white, size: 28),
+                    Center(
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: colorScheme.onPrimary,
+                        size: 28,
+                      ),
                     ),
                     if (venues.isNotEmpty)
                       Positioned(
@@ -396,15 +360,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: colorScheme.error,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '${venues.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onError,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -440,132 +403,234 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           maxChildSize: 0.85,
           expand: false,
           builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, -6),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 16),
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildSearchField(context, searchProvider),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                  child: _buildSearchInfo(context, searchProvider),
+                ),
+                Expanded(
+                  child: venues.isEmpty
+                      ? const _DiscoverEmptyState()
+                      : ListView.separated(
+                          controller: scrollController,
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                          itemCount: venues.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final venue = venues[index];
+                            return _VenueCard(
+                              venue: venue,
+                              onSharePulse: () => _sharePulse(context, venue),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
           ),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              // Search field
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: _buildSearchField(searchProvider),
-              ),
-              // Search info
-              if (searchProvider.isLoading ||
-                  searchProvider.errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildSearchInfo(searchProvider),
-                ),
-              // Results list
-              Expanded(
-                child: venues.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Search for cafes, restaurants, or entertainment venues nearby.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                    : ListView.separated(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: venues.length,
-                        separatorBuilder: (_, __) => const Divider(),
-                        itemBuilder: (context, index) {
-                          final venue = venues[index];
-                          return _VenueTile(venue: venue);
-                        },
-                      ),
-              ),
-            ],
-          ),
-        ),
         ),
       ),
     );
   }
 
-  Widget _buildSearchField(VenueSearchProvider searchProvider) {
+  Widget _buildSearchField(
+    BuildContext context,
+    VenueSearchProvider searchProvider,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _controller,
       builder: (context, value, child) {
-        return TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          onChanged: _realtimeSearch
-              ? (value) => searchProvider.updateQuery(value)
-              : null,
-          onSubmitted: (value) => searchProvider.updateQuery(value),
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
-            labelText: 'Search venues',
-            hintText: _realtimeSearch
-                ? 'Type to search live...'
-                : 'Type and press enter to search...',
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (value.text.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _controller.clear();
-                      searchProvider.updateQuery('');
-                    },
-                  ),
-                if (!_realtimeSearch)
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () =>
-                        searchProvider.updateQuery(_controller.text),
-                  ),
-              ],
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: colorScheme.surface,
+            border: Border.all(
+              color: colorScheme.primary.withValues(alpha: 0.18),
+              width: 1,
             ),
-            border: const OutlineInputBorder(),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 12),
+                spreadRadius: -12,
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            onChanged: _realtimeSearch
+                ? (text) => searchProvider.updateQuery(text)
+                : null,
+            onSubmitted: (text) {
+              searchProvider.updateQuery(text, immediate: true);
+              FocusScope.of(context).unfocus();
+            },
+            textInputAction: TextInputAction.search,
+            style: textTheme.bodyMedium,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+              prefixIcon: Icon(Icons.search, color: colorScheme.primary),
+              hintText: _realtimeSearch
+                  ? 'Yakındaki mekanları canlı ara...'
+                  : 'Mekan ara ve enter’a bas...',
+              border: InputBorder.none,
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (value.text.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: 'Temizle',
+                      onPressed: () {
+                        _controller.clear();
+                        searchProvider.updateQuery('');
+                      },
+                    ),
+                  if (!_realtimeSearch)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          searchProvider.updateQuery(
+                            _controller.text,
+                            immediate: true,
+                          );
+                          FocusScope.of(context).unfocus();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          foregroundColor: colorScheme.onPrimary,
+                          backgroundColor: colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: const Icon(Icons.search, size: 18),
+                        label: const Text('Ara'),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildSearchInfo(VenueSearchProvider searchProvider) {
+  Widget _buildSearchInfo(
+    BuildContext context,
+    VenueSearchProvider searchProvider,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final infoWidgets = <Widget>[];
+
+    infoWidgets.add(
+      Row(
+        children: [
+          _InfoChip(
+            icon: Icons.public,
+            label: searchProvider.providerName,
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+            foregroundColor: colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          _InfoChip(
+            icon: Icons.flash_on,
+            label: _realtimeSearch ? 'Canlı arama' : 'Manuel arama',
+            backgroundColor: colorScheme.secondary.withValues(alpha: 0.12),
+            foregroundColor: colorScheme.secondary,
+          ),
+        ],
+      ),
+    );
+
+    if (searchProvider.isLoading) {
+      infoWidgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: LinearProgressIndicator(
+            minHeight: 4,
+            color: colorScheme.primary,
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
+          ),
+        ),
+      );
+    }
+
+    if (searchProvider.errorMessage != null) {
+      infoWidgets.add(
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.error.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.error_outline, size: 16, color: colorScheme.error),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  searchProvider.errorMessage!,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.error,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        if (!searchProvider.isRemoteEnabled)
-          Text(
-            'Provider: ${searchProvider.providerName}',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        if (searchProvider.isLoading)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: LinearProgressIndicator(),
-          ),
-        if (searchProvider.errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              searchProvider.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-      ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: infoWidgets,
     );
   }
 
@@ -644,135 +709,586 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 }
 
-class _VenueTile extends StatelessWidget {
-  const _VenueTile({required this.venue});
+class _DiscoverSearchPanel extends StatelessWidget {
+  const _DiscoverSearchPanel({
+    required this.searchProvider,
+    required this.resultCount,
+    required this.useStaticLocation,
+    required this.isRealtimeSearch,
+    required this.buildSearchField,
+  });
 
-  final Venue venue;
+  final VenueSearchProvider searchProvider;
+  final int resultCount;
+  final bool useStaticLocation;
+  final bool isRealtimeSearch;
+  final Widget Function() buildSearchField;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getCategoryColor(venue.category),
-          child: Text(
-            venue.category.isNotEmpty ? venue.category[0].toUpperCase() : '?',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primary.withValues(alpha: 0.95),
+            colorScheme.secondary.withValues(alpha: 0.85),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withValues(alpha: 0.3),
+            blurRadius: 28,
+            offset: const Offset(0, 18),
+            spreadRadius: -18,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Yeni yerler keşfet',
+            style: textTheme.titleMedium?.copyWith(
+              color: colorScheme.onPrimary,
+              fontWeight: FontWeight.w700,
             ),
           ),
-        ),
-        title: Text(
-          venue.name,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${venue.category} • ${venue.addressSummary}'),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                if (venue.rating.average > 0) ...[
-                  Icon(Icons.star, size: 16, color: Colors.amber[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${venue.rating.average.toStringAsFixed(1)} (${venue.rating.count})',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                if (venue.trendingScore > 0) ...[
-                  Icon(Icons.trending_up, size: 16, color: Colors.green[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${(venue.trendingScore * 100).toInt()}%',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ],
+          const SizedBox(height: 4),
+          Text(
+            'Yakınındaki kafeler, restoranlar ve eğlence mekanlarını ara.',
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onPrimary.withValues(alpha: 0.8),
             ),
-            if (venue.amenities.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 4,
-                runSpacing: 2,
-                children: venue.amenities
-                    .take(3)
-                    .map(
-                      (amenity) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          amenity,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    )
-                    .toList(),
+          ),
+          const SizedBox(height: 18),
+          Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: colorScheme.copyWith(surface: colorScheme.surface),
+            ),
+            child: buildSearchField(),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _InfoChip(
+                icon: Icons.place,
+                label: useStaticLocation ? 'Demo konum' : 'Canlı konum',
+                backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.12),
+                foregroundColor: colorScheme.onPrimary,
+              ),
+              if (searchProvider.query.isNotEmpty)
+                _InfoChip(
+                  icon: Icons.check_circle_outline,
+                  label: '$resultCount sonuç',
+                  backgroundColor: colorScheme.onPrimary.withValues(
+                    alpha: 0.12,
+                  ),
+                  foregroundColor: colorScheme.onPrimary,
+                ),
+              _InfoChip(
+                icon: Icons.explore,
+                label: isRealtimeSearch
+                    ? 'Canlı arama açık'
+                    : 'Canlı arama kapalı',
+                backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.12),
+                foregroundColor: colorScheme.onPrimary,
               ),
             ],
-          ],
-        ),
-        trailing: IconButton(
-          onPressed: () async {
-            final result = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => PulseComposerScreen(venue: venue),
+          ),
+          if (searchProvider.isLoading || searchProvider.errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (searchProvider.isLoading)
+                    LinearProgressIndicator(
+                      minHeight: 4,
+                      color: colorScheme.onPrimary,
+                      backgroundColor: colorScheme.onPrimary.withValues(
+                        alpha: 0.2,
+                      ),
+                    ),
+                  if (searchProvider.errorMessage != null)
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              searchProvider.errorMessage!,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-            );
-
-            if (result == true && context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('🎉 Pulse shared successfully!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            }
-          },
-          icon: const Icon(Icons.favorite, color: Colors.red),
-          tooltip: 'Share Pulse',
-        ),
-        isThreeLine: true,
+            ),
+        ],
       ),
     );
   }
+}
 
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'coffee':
-      case 'coffee shop':
-        return Colors.brown;
-      case 'restaurant':
-      case 'food':
-        return Colors.orange;
-      case 'bar':
-      case 'nightlife':
-        return Colors.purple;
-      case 'hotel':
-      case 'lodging':
-        return Colors.blue;
-      case 'shopping':
-      case 'retail':
-        return Colors.green;
-      case 'entertainment':
-      case 'arts':
-        return Colors.red;
-      case 'fitness':
-      case 'gym':
-        return Colors.indigo;
-      default:
-        return Colors.grey;
-    }
+class _DiscoverEmptyState extends StatelessWidget {
+  const _DiscoverEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: colorScheme.surface,
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.12),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.travel_explore, size: 48, color: colorScheme.primary),
+            const SizedBox(height: 16),
+            Text(
+              'Aramaya başla',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Kafeler, restoranlar veya eğlence mekanlarını arayarak yeni yerler keşfet. '
+              'Haritaya geçerek yakınındaki önerileri görebilirsin.',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VenueCard extends StatelessWidget {
+  const _VenueCard({required this.venue, required this.onSharePulse});
+
+  final Venue venue;
+  final VoidCallback onSharePulse;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final emoji = _getVenueEmoji(venue.category);
+    final address = _formatVenueAddress(venue);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: [
+            Color.alphaBlend(
+              colorScheme.primary.withValues(alpha: 0.16),
+              colorScheme.surface,
+            ),
+            Color.alphaBlend(
+              colorScheme.secondary.withValues(alpha: 0.08),
+              colorScheme.surface,
+            ),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 24,
+            offset: const Offset(0, 18),
+            spreadRadius: -16,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (venue.coverPhotoUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  venue.coverPhotoUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: colorScheme.surfaceContainerHighest,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: colorScheme.onSurface.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            colorScheme.primary.withValues(alpha: 0.32),
+                            colorScheme.primary,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            venue.name,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${venue.category} • $address',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.65,
+                              ),
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (venue.rating.average > 0)
+                          _VenueMetricChip(
+                            icon: Icons.star_rounded,
+                            label: venue.rating.average.toStringAsFixed(1),
+                            caption: '(${venue.rating.count})',
+                            color: Colors.amber[600]!,
+                          ),
+                        if (venue.trendingScore > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: _VenueMetricChip(
+                              icon: Icons.trending_up,
+                              label: '${(venue.trendingScore * 100).toInt()}%',
+                              caption: 'Trend',
+                              color: Colors.green[500]!,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (venue.amenities.isNotEmpty) ...[
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: venue.amenities
+                        .take(4)
+                        .map((amenity) => _AmenityChip(label: amenity))
+                        .toList(),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: onSharePulse,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
+                      backgroundColor: colorScheme.primary.withValues(
+                        alpha: 0.12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    icon: Icon(
+                      Icons.favorite_border,
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
+                    label: Text(
+                      'Pulse paylaş',
+                      style: textTheme.labelMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VenueMetricChip extends StatelessWidget {
+  const _VenueMetricChip({
+    required this.icon,
+    required this.label,
+    this.caption,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? caption;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: textTheme.labelMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (caption != null) ...[
+            const SizedBox(width: 4),
+            Text(caption!, style: textTheme.labelSmall?.copyWith(color: color)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AmenityChip extends StatelessWidget {
+  const _AmenityChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onSurface.withValues(alpha: 0.7),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: foregroundColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: textTheme.labelSmall?.copyWith(
+              color: foregroundColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _formatVenueAddress(Venue venue) {
+  final addressParts = venue.addressSummary
+      .split(',')
+      .map((part) => part.trim())
+      .where((part) {
+        if (part.isEmpty) {
+          return false;
+        }
+        final normalized = part.replaceAll(RegExp(r'[^0-9]'), '');
+        if (normalized.length >= 5) {
+          return false;
+        }
+        return true;
+      })
+      .toList();
+
+  if (addressParts.length >= 2) {
+    return '${addressParts[addressParts.length - 2]}, ${addressParts.last}';
+  }
+
+  return addressParts.isNotEmpty ? addressParts.last : venue.addressSummary;
+}
+
+double _getVenueHue(String category) {
+  switch (category.toLowerCase()) {
+    case 'café':
+    case 'cafe':
+    case 'coffee shop':
+      return BitmapDescriptor.hueOrange;
+    case 'restaurant':
+    case 'food':
+      return BitmapDescriptor.hueRed;
+    case 'bar':
+    case 'nightlife':
+      return BitmapDescriptor.hueViolet;
+    case 'hotel':
+    case 'lodging':
+      return BitmapDescriptor.hueBlue;
+    case 'shop':
+    case 'shopping':
+      return BitmapDescriptor.hueRose;
+    case 'entertainment':
+    case 'arts':
+      return BitmapDescriptor.hueYellow;
+    default:
+      return BitmapDescriptor.hueGreen;
+  }
+}
+
+String _getVenueEmoji(String category) {
+  switch (category.toLowerCase()) {
+    case 'café':
+    case 'cafe':
+    case 'coffee shop':
+      return '☕️';
+    case 'restaurant':
+    case 'food':
+      return '🍽️';
+    case 'bar':
+    case 'nightlife':
+    case 'night_club':
+      return '🍺';
+    case 'hotel':
+    case 'lodging':
+      return '🏨';
+    case 'shop':
+    case 'shopping':
+      return '🛍️';
+    case 'entertainment':
+    case 'arts':
+    case 'tourist_attraction':
+      return '🎭';
+    case 'gym':
+    case 'fitness':
+      return '💪';
+    case 'hospital':
+    case 'health':
+      return '🏥';
+    case 'bank':
+      return '🏦';
+    case 'gas_station':
+      return '⛽';
+    case 'parking':
+      return '🅿️';
+    default:
+      return '📍';
   }
 }
 
@@ -789,17 +1305,19 @@ class _MapControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Tooltip(
       message: tooltip,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -811,7 +1329,7 @@ class _MapControlButton extends StatelessWidget {
             child: SizedBox(
               width: 36,
               height: 36,
-              child: Icon(icon, size: 18, color: Colors.grey[700]),
+              child: Icon(icon, size: 18, color: colorScheme.onSurface),
             ),
           ),
         ),
@@ -827,20 +1345,22 @@ class _MapTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: PopupMenuButton<MapType>(
-        icon: Icon(Icons.layers, size: 18, color: Colors.grey[700]),
+        icon: Icon(Icons.layers, size: 18, color: colorScheme.onSurface),
         tooltip: 'Change Map Type',
         onSelected: onTypeChanged,
         itemBuilder: (context) => [

@@ -1,0 +1,12 @@
+name: timelines
+version: 0.0.1
+homepage: https://example.com/local-timelines
+publish_to: 'none'
+
+environment:
+  sdk: '>=2.19.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter

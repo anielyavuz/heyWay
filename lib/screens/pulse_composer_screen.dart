@@ -11,10 +11,7 @@ import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
 
 class PulseComposerScreen extends StatefulWidget {
-  const PulseComposerScreen({
-    super.key,
-    this.venue,
-  });
+  const PulseComposerScreen({super.key, this.venue});
 
   final Venue? venue;
 
@@ -25,7 +22,7 @@ class PulseComposerScreen extends StatefulWidget {
 class _PulseComposerScreenState extends State<PulseComposerScreen> {
   final _captionController = TextEditingController();
   final _focusNode = FocusNode();
-  
+
   Venue? _selectedVenue;
   String _selectedMood = '😊';
   String _selectedVisibility = 'public';
@@ -63,19 +60,19 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
       'value': 'public',
       'label': 'Public',
       'icon': Icons.public,
-      'description': 'Everyone can see this Pulse'
+      'description': 'Everyone can see this Pulse',
     },
     {
       'value': 'friends',
       'label': 'Friends',
       'icon': Icons.people,
-      'description': 'Only your friends can see this Pulse'
+      'description': 'Only your friends can see this Pulse',
     },
     {
       'value': 'private',
       'label': 'Private',
       'icon': Icons.lock,
-      'description': 'Only you can see this Pulse'
+      'description': 'Only you can see this Pulse',
     },
   ];
 
@@ -94,7 +91,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
 
   Future<void> _pickImages() async {
     final ImagePicker picker = ImagePicker();
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -156,12 +153,11 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
         initialChildSize: 0.8,
         minChildSize: 0.5,
         maxChildSize: 0.9,
-        builder: (context, scrollController) => VenueSelectionModal(
-          scrollController: scrollController,
-        ),
+        builder: (context, scrollController) =>
+            VenueSelectionModal(scrollController: scrollController),
       ),
     );
-    
+
     if (result != null) {
       setState(() {
         _selectedVenue = result;
@@ -171,9 +167,9 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
 
   Future<void> _submitPulse() async {
     if (_selectedVenue == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a venue')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a venue')));
       return;
     }
 
@@ -186,7 +182,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
     try {
       final authProvider = context.read<app_auth.AuthProvider>();
       final user = authProvider.user;
-      
+
       if (user == null) {
         throw Exception('User not authenticated');
       }
@@ -195,18 +191,18 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
       List<String> mediaRefs = [];
       if (_selectedImages.isNotEmpty) {
         final storageService = StorageService();
-        
+
         for (int i = 0; i < _selectedImages.length; i++) {
           final file = _selectedImages[i];
           final pulseId = DateTime.now().millisecondsSinceEpoch.toString();
           final fileName = 'pulse_${pulseId}_$i.jpg';
-          
+
           final mediaRef = await storageService.uploadPulseMedia(
             file: file,
             pulseId: pulseId,
             fileName: fileName,
           );
-          
+
           if (mediaRef != null) {
             mediaRefs.add(mediaRef);
           }
@@ -240,9 +236,9 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing Pulse: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error sharing Pulse: $e')));
       }
     } finally {
       if (mounted) {
@@ -280,19 +276,19 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
             // Venue Selection
             _buildVenueSection(),
             const SizedBox(height: 24),
-            
+
             // Mood Selection
             _buildMoodSection(),
             const SizedBox(height: 24),
-            
+
             // Caption Input
             _buildCaptionSection(),
             const SizedBox(height: 24),
-            
+
             // Photo Selection
             _buildPhotoSection(),
             const SizedBox(height: 24),
-            
+
             // Privacy Selection
             _buildPrivacySection(),
           ],
@@ -310,10 +306,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
           children: [
             const Text(
               'Location',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             if (_selectedVenue == null)
@@ -354,9 +347,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
                         children: [
                           Text(
                             _selectedVenue!.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           Text(
                             _selectedVenue!.addressSummary,
@@ -390,10 +381,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
           children: [
             const Text(
               'How are you feeling?',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -424,10 +412,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          mood,
-                          style: const TextStyle(fontSize: 20),
-                        ),
+                        Text(mood, style: const TextStyle(fontSize: 20)),
                         const SizedBox(width: 8),
                         Text(
                           _moodLabels[mood]!,
@@ -457,10 +442,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
           children: [
             const Text(
               'What\'s happening?',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -490,10 +472,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
               children: [
                 const Text(
                   'Photos',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 TextButton.icon(
@@ -565,10 +544,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
           children: [
             const Text(
               'Who can see this?',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             ..._visibilityOptions.map((option) {
@@ -585,7 +561,9 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                          ? Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1)
                           : null,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
@@ -645,10 +623,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
 }
 
 class VenueSelectionModal extends StatefulWidget {
-  const VenueSelectionModal({
-    super.key,
-    required this.scrollController,
-  });
+  const VenueSelectionModal({super.key, required this.scrollController});
 
   final ScrollController scrollController;
 
@@ -699,7 +674,7 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(16),
@@ -719,9 +694,32 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                     // Search Icon Button
                     IconButton(
                       onPressed: () {
+                        final provider = context.read<VenueSearchProvider>();
                         showSearch(
                           context: context,
-                          delegate: VenueSearchDelegate(),
+                          delegate: VenueSearchDelegate(
+                            onManualVenueRequested:
+                                (searchContext, manualQuery) async {
+                                  try {
+                                    return await provider.createManualVenue(
+                                      manualQuery,
+                                    );
+                                  } catch (error) {
+                                    if (searchContext.mounted) {
+                                      ScaffoldMessenger.of(
+                                        searchContext,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Mekan eklenemedi: $error',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return null;
+                                  }
+                                },
+                          ),
                         ).then((venue) {
                           if (venue != null) {
                             Navigator.pop(context, venue);
@@ -736,15 +734,12 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                 const SizedBox(height: 12),
                 const Text(
                   'Nearby venues',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],
             ),
           ),
-          
+
           // Venue List
           Expanded(
             child: Consumer<VenueSearchProvider>(
@@ -752,13 +747,17 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 if (provider.results.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.location_on, size: 64, color: Colors.grey[400]),
+                        Icon(
+                          Icons.location_on,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
                         const SizedBox(height: 16),
                         const Text('Loading nearby venues...'),
                         const SizedBox(height: 16),
@@ -773,7 +772,7 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                     ),
                   );
                 }
-                
+
                 return ListView.builder(
                   controller: widget.scrollController,
                   itemCount: provider.results.length + 1, // +1 for load more
@@ -785,34 +784,45 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                         child: TextButton(
                           onPressed: () async {
                             // Load more venues with higher limit
-                            final provider = context.read<VenueSearchProvider>();
+                            final provider = context
+                                .read<VenueSearchProvider>();
                             await provider.loadMoreNearbyVenues();
                           },
                           child: const Text('Load more venues'),
                         ),
                       );
                     }
-                    
+
                     final venue = provider.results[index];
-                    
+
                     // Extract district and city from address (skip postal codes)
-                    final addressParts = venue.addressSummary.split(',')
+                    final addressParts = venue.addressSummary
+                        .split(',')
                         .map((part) => part.trim())
-                        .where((part) => part.isNotEmpty && !RegExp(r'^\d{5}').hasMatch(part))
+                        .where(
+                          (part) =>
+                              part.isNotEmpty &&
+                              !RegExp(r'^\d{5}').hasMatch(part),
+                        )
                         .toList();
                     final shortAddress = addressParts.length >= 2
                         ? '${addressParts[addressParts.length - 2]}, ${addressParts.last}'
-                        : addressParts.isNotEmpty ? addressParts.last : venue.addressSummary;
-                    
+                        : addressParts.isNotEmpty
+                        ? addressParts.last
+                        : venue.addressSummary;
+
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Theme.of(context).primaryColor,
                         radius: 20,
                         child: Text(
-                          venue.category.isNotEmpty 
-                              ? venue.category[0].toUpperCase() 
+                          venue.category.isNotEmpty
+                              ? venue.category[0].toUpperCase()
                               : '?',
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       title: Text(
@@ -844,6 +854,18 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
 }
 
 class VenueSearchDelegate extends SearchDelegate<Venue?> {
+  VenueSearchDelegate({this.onManualVenueRequested});
+
+  final Future<Venue?> Function(BuildContext context, String query)?
+      onManualVenueRequested;
+
+  @override
+  void showResults(BuildContext context) {
+    context.read<VenueSearchProvider>().updateQuery(query, immediate: true);
+    FocusScope.of(context).unfocus();
+    super.showResults(context);
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -879,10 +901,17 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
   Widget _buildSearchResults(BuildContext context) {
     return Consumer<VenueSearchProvider>(
       builder: (context, provider, child) {
-        // Trigger search when query changes
+        final trimmedQuery = query.trim();
+
+        // Trigger search when query changes with debounce
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (query.trim().isNotEmpty) {
-            provider.updateQuery(query);
+          if (!context.mounted) return;
+          if (trimmedQuery.isEmpty) {
+            if (provider.query.isNotEmpty) {
+              provider.updateQuery('');
+            }
+          } else if (provider.query != trimmedQuery) {
+            provider.updateQuery(trimmedQuery);
           }
         });
 
@@ -890,51 +919,124 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (query.trim().isEmpty) {
+        if (trimmedQuery.isEmpty) {
           return const Center(
             child: Text('Start typing to search for venues...'),
           );
         }
 
-        if (provider.results.isEmpty) {
-          return const Center(
-            child: Text('No venues found'),
-          );
-        }
+        final venues = provider.results;
+        final showManualOption =
+            onManualVenueRequested != null && trimmedQuery.isNotEmpty;
 
-        return ListView.builder(
-          itemCount: provider.results.length,
-          itemBuilder: (context, index) {
-            final venue = provider.results[index];
-            
-            // Extract district and city from address (skip postal codes)
-            final addressParts = venue.addressSummary.split(',')
+        final tiles = <Widget>[];
+
+        if (venues.isEmpty) {
+          tiles.add(
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('No venues found nearby'),
+              subtitle: const Text('Add it manually so others can see it.'),
+            ),
+          );
+        } else {
+          for (final venue in venues) {
+            final addressParts = venue.addressSummary
+                .split(',')
                 .map((part) => part.trim())
-                .where((part) => part.isNotEmpty && !RegExp(r'^\d{5}').hasMatch(part))
+                .where(
+                  (part) =>
+                      part.isNotEmpty && !RegExp(r'^\d{5}').hasMatch(part),
+                )
                 .toList();
             final shortAddress = addressParts.length >= 2
                 ? '${addressParts[addressParts.length - 2]}, ${addressParts.last}'
-                : addressParts.isNotEmpty ? addressParts.last : venue.addressSummary;
+                : addressParts.isNotEmpty
+                ? addressParts.last
+                : venue.addressSummary;
 
-            return ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Theme.of(context).primaryColor,
-                child: Text(
-                  venue.category.isNotEmpty 
-                      ? venue.category[0].toUpperCase() 
-                      : '?',
-                  style: const TextStyle(color: Colors.white),
+            tiles.add(
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: Text(
+                    venue.category.isNotEmpty
+                        ? venue.category[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
+                title: Text(venue.name),
+                subtitle: Text(shortAddress),
+                onTap: () {
+                  close(context, venue);
+                },
               ),
-              title: Text(venue.name),
-              subtitle: Text(shortAddress),
-              onTap: () {
-                close(context, venue);
-              },
             );
-          },
+          }
+        }
+
+        if (showManualOption) {
+          if (tiles.isNotEmpty) {
+            tiles.add(const Divider(height: 0));
+          }
+          tiles.add(_buildManualCreationTile(context, trimmedQuery));
+        }
+
+        return ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          children: tiles,
         );
       },
     );
+  }
+
+  Widget _buildManualCreationTile(BuildContext context, String name) {
+    return ListTile(
+      leading: const Icon(Icons.add_location_alt_outlined),
+      title: Text('"$name" mekanını ekle'),
+      subtitle: const Text('Bu mekanı manuel olarak kaydet'),
+      onTap: () async {
+        final venue = await _handleManualVenueCreation(context, name);
+        if (venue != null && context.mounted) {
+          close(context, venue);
+        }
+      },
+    );
+  }
+
+  Future<Venue?> _handleManualVenueCreation(
+    BuildContext context,
+    String name,
+  ) async {
+    if (onManualVenueRequested == null) {
+      return null;
+    }
+
+    var dialogShown = false;
+    if (context.mounted) {
+      dialogShown = true;
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    try {
+      final venue = await onManualVenueRequested!(context, name);
+      return venue;
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Mekan eklenemedi: $error')));
+      }
+      return null;
+    } finally {
+      if (dialogShown && context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    }
   }
 }

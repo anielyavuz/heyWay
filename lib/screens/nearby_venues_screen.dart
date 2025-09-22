@@ -29,22 +29,46 @@ class _NearbyVenuesScreenState extends State<NearbyVenuesScreen> {
     });
 
     try {
-      DebugLogger.info('Loading nearby venues for pulse creation', 'NearbyVenuesScreen');
-      
+      DebugLogger.info(
+        'Loading nearby venues for pulse creation',
+        'NearbyVenuesScreen',
+      );
+
       final venueSearchProvider = context.read<VenueSearchProvider>();
-      
+
       // Update location and load nearby popular venues
       await venueSearchProvider.getCurrentLocationAndUpdate();
-      await venueSearchProvider.loadNearbyPopularVenues();
+      await venueSearchProvider.loadNearbyPopularVenues(
+        limit: 15,
+        keywordFilters: const [
+          'cafe',
+          'coffee',
+          'kafe',
+          'restaurant',
+          'restoran',
+          'bar',
+          'nightlife',
+          'entertainment',
+          'social',
+          'sosyal',
+          'market',
+          'shopping',
+        ],
+      );
 
       setState(() {
         _isLoading = false;
       });
 
-      DebugLogger.info('Loaded ${venueSearchProvider.results.length} nearby venues', 'NearbyVenuesScreen');
-
+      DebugLogger.info(
+        'Loaded ${venueSearchProvider.results.length} nearby venues',
+        'NearbyVenuesScreen',
+      );
     } catch (e) {
-      DebugLogger.error('Failed to load nearby venues: $e', 'NearbyVenuesScreen');
+      DebugLogger.error(
+        'Failed to load nearby venues: $e',
+        'NearbyVenuesScreen',
+      );
       setState(() {
         _error = 'Failed to load nearby venues: $e';
         _isLoading = false;
@@ -52,28 +76,83 @@ class _NearbyVenuesScreenState extends State<NearbyVenuesScreen> {
     }
   }
 
+  Future<void> _openSearch() async {
+    final venueSearchProvider = context.read<VenueSearchProvider>();
+
+    final selectedVenue = await showSearch<Venue?>(
+      context: context,
+      delegate: VenueSearchDelegate(
+        onManualVenueRequested: (searchContext, query) async {
+          try {
+            return await venueSearchProvider.createManualVenue(query);
+          } catch (error) {
+            if (searchContext.mounted) {
+              ScaffoldMessenger.of(searchContext).showSnackBar(
+                SnackBar(content: Text('Mekan eklenemedi: $error')),
+              );
+            }
+            return null;
+          }
+        },
+      ),
+    );
+
+    if (!mounted || selectedVenue == null) {
+      return;
+    }
+
+    await _openComposer(selectedVenue);
+  }
+
+  Future<void> _openComposer(Venue venue) async {
+    if (!mounted) return;
+
+    DebugLogger.info(
+      'Creating pulse for venue: ${venue.name}',
+      'NearbyVenuesScreen',
+    );
+
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PulseComposerScreen(venue: venue),
+      ),
+    );
+
+    if (result == true && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 
   String _getVenueEmoji(String category) {
     final lowerCategory = category.toLowerCase();
     if (lowerCategory.contains('cafe') || lowerCategory.contains('coffee')) {
       return '☕️';
-    } else if (lowerCategory.contains('restaurant') || lowerCategory.contains('food')) {
+    } else if (lowerCategory.contains('restaurant') ||
+        lowerCategory.contains('food')) {
       return '🍽️';
-    } else if (lowerCategory.contains('bar') || lowerCategory.contains('nightlife')) {
+    } else if (lowerCategory.contains('bar') ||
+        lowerCategory.contains('nightlife')) {
       return '🍻';
-    } else if (lowerCategory.contains('hotel') || lowerCategory.contains('lodging')) {
+    } else if (lowerCategory.contains('hotel') ||
+        lowerCategory.contains('lodging')) {
       return '🏨';
-    } else if (lowerCategory.contains('shop') || lowerCategory.contains('store')) {
+    } else if (lowerCategory.contains('shop') ||
+        lowerCategory.contains('store')) {
       return '🛍️';
-    } else if (lowerCategory.contains('park') || lowerCategory.contains('recreation')) {
+    } else if (lowerCategory.contains('park') ||
+        lowerCategory.contains('recreation')) {
       return '🌳';
-    } else if (lowerCategory.contains('gym') || lowerCategory.contains('fitness')) {
+    } else if (lowerCategory.contains('gym') ||
+        lowerCategory.contains('fitness')) {
       return '💪';
-    } else if (lowerCategory.contains('entertainment') || lowerCategory.contains('arts')) {
+    } else if (lowerCategory.contains('entertainment') ||
+        lowerCategory.contains('arts')) {
       return '🎭';
-    } else if (lowerCategory.contains('health') || lowerCategory.contains('medical')) {
+    } else if (lowerCategory.contains('health') ||
+        lowerCategory.contains('medical')) {
       return '🏥';
-    } else if (lowerCategory.contains('gas') || lowerCategory.contains('automotive')) {
+    } else if (lowerCategory.contains('gas') ||
+        lowerCategory.contains('automotive')) {
       return '⛽️';
     } else {
       return '📍';
@@ -86,6 +165,11 @@ class _NearbyVenuesScreenState extends State<NearbyVenuesScreen> {
       appBar: AppBar(
         title: const Text('Nearby Venues'),
         actions: [
+          IconButton(
+            onPressed: _openSearch,
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+          ),
           IconButton(
             onPressed: _loadNearbyVenues,
             icon: const Icon(Icons.refresh),
@@ -122,7 +206,7 @@ class _NearbyVenuesScreenState extends State<NearbyVenuesScreen> {
           }
 
           final venues = searchProvider.results;
-          
+
           if (venues.isEmpty) {
             return Center(
               child: Column(
@@ -159,22 +243,7 @@ class _NearbyVenuesScreenState extends State<NearbyVenuesScreen> {
               return NearbyVenueCard(
                 venue: venue,
                 emoji: _getVenueEmoji(venue.category),
-                onPulseTap: () async {
-                  DebugLogger.info('Creating pulse for venue: ${venue.name}', 'NearbyVenuesScreen');
-                  
-                  if (!mounted) return;
-                  
-                  final result = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PulseComposerScreen(venue: venue),
-                    ),
-                  );
-
-                  if (result == true && mounted) {
-                    // Pulse was created successfully, go back to main screen
-                    Navigator.of(context).pop();
-                  }
-                },
+                onPulseTap: () => _openComposer(venue),
               );
             },
           );
@@ -203,36 +272,23 @@ class NearbyVenueCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.red[50],
-          child: Text(
-            emoji,
-            style: const TextStyle(fontSize: 20),
-          ),
+          child: Text(emoji, style: const TextStyle(fontSize: 20)),
         ),
         title: Text(
           venue.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               venue.category,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 2),
             Row(
               children: [
-                Icon(
-                  Icons.location_on,
-                  size: 14,
-                  color: Colors.red[400],
-                ),
+                Icon(Icons.location_on, size: 14, color: Colors.red[400]),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -256,11 +312,7 @@ class NearbyVenueCard extends StatelessWidget {
           ),
           child: IconButton(
             onPressed: onPulseTap,
-            icon: const Icon(
-              Icons.favorite,
-              color: Colors.white,
-              size: 20,
-            ),
+            icon: const Icon(Icons.favorite, color: Colors.white, size: 20),
             tooltip: 'Create Pulse',
           ),
         ),

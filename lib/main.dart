@@ -136,7 +136,7 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: PulseActionButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -144,11 +144,6 @@ class _MainScreenState extends State<MainScreen> {
             ),
           );
         },
-        backgroundColor: Colors.red[600],
-        child: const Icon(
-          Icons.favorite,
-          color: Colors.white,
-        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -161,5 +156,117 @@ class ThemeLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+}
+
+class PulseActionButton extends StatefulWidget {
+  const PulseActionButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  State<PulseActionButton> createState() => _PulseActionButtonState();
+}
+
+class _PulseActionButtonState extends State<PulseActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      width: 68,
+      height: 68,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              final progress = _controller.value;
+              return Stack(
+                alignment: Alignment.center,
+                children: List.generate(3, (index) {
+                  final start = index * 0.18;
+                  final end = start + 0.62;
+                  double value;
+                  if (progress <= start) {
+                    value = 0;
+                  } else if (progress >= end) {
+                    value = 0;
+                  } else {
+                    value = (progress - start) / (end - start);
+                  }
+                  final radius = 48 + (value * 20);
+                  final opacity = (1 - value).clamp(0.0, 1.0);
+                  return Opacity(
+                    opacity: opacity,
+                    child: Container(
+                      width: radius,
+                      height: radius,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primary.withValues(alpha: 0.12),
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onPressed,
+              borderRadius: BorderRadius.circular(40),
+              child: Ink(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.primary,
+                      colorScheme.secondary,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.primary.withValues(alpha: 0.25),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.add,
+                  color: colorScheme.onPrimary,
+                  size: 28,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
