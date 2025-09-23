@@ -6,9 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import '../models/venue.dart';
 import '../models/pulse.dart';
 import '../providers/auth_provider.dart' as app_auth;
+import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
+import '../utils/distance_utils.dart';
 
 class PulseComposerScreen extends StatefulWidget {
   const PulseComposerScreen({super.key, this.venue});
@@ -857,7 +859,7 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
   VenueSearchDelegate({this.onManualVenueRequested});
 
   final Future<Venue?> Function(BuildContext context, String query)?
-      onManualVenueRequested;
+  onManualVenueRequested;
 
   @override
   void showResults(BuildContext context) {
@@ -902,6 +904,10 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
     return Consumer<VenueSearchProvider>(
       builder: (context, provider, child) {
         final trimmedQuery = query.trim();
+        final locationProvider = context.watch<LocationProvider>();
+        final position = locationProvider.status == LocationStatus.granted
+            ? locationProvider.position
+            : null;
 
         // Trigger search when query changes with debounce
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -954,6 +960,7 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
                 : addressParts.isNotEmpty
                 ? addressParts.last
                 : venue.addressSummary;
+            final distanceLabel = formatVenueDistance(position, venue);
 
             tiles.add(
               ListTile(
@@ -967,7 +974,23 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
                   ),
                 ),
                 title: Text(venue.name),
-                subtitle: Text(shortAddress),
+                subtitle: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(shortAddress),
+                    if (distanceLabel != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        distanceLabel,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
                 onTap: () {
                   close(context, venue);
                 },

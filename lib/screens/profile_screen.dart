@@ -1,7 +1,8 @@
-
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuthException;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../models/app_user.dart';
 import '../providers/auth_provider.dart';
@@ -17,14 +18,16 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        if (authProvider.user == null) {
+        final firebaseUser = authProvider.user;
+
+        if (firebaseUser == null) {
           return const Scaffold(
             body: Center(child: Text('Please sign in to view profile')),
           );
         }
 
         return StreamBuilder<AppUser>(
-          stream: FirestoreService().userStream(authProvider.user!.uid),
+          stream: FirestoreService().userStream(firebaseUser.uid),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
@@ -45,7 +48,10 @@ class ProfileScreen extends StatelessWidget {
               );
             }
 
-            return _ProfileContent(user: appUser);
+            return _ProfileContent(
+              user: appUser,
+              isAnonymous: firebaseUser.isAnonymous,
+            );
           },
         );
       },
@@ -54,9 +60,10 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.user});
+  const _ProfileContent({required this.user, required this.isAnonymous});
 
   final AppUser user;
+  final bool isAnonymous;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +83,7 @@ class _ProfileContent extends StatelessWidget {
       ),
       _ProfileAction(
         icon: Icons.timeline_outlined,
-        title: 'Pulse geçmişi',
+        title: 'Loglar',
         subtitle: 'Paylaşımlarının kaydını gör',
         onTap: () {
           Navigator.push(
@@ -98,6 +105,20 @@ class _ProfileContent extends StatelessWidget {
           );
         },
       ),
+    ];
+
+    if (isAnonymous) {
+      actions.add(
+        _ProfileAction(
+          icon: Icons.link_rounded,
+          title: 'Hesabı e-postaya taşı',
+          subtitle: 'Misafir hesabını e-posta ve şifreyle eşleştir',
+          onTap: () => _showLinkAccountSheet(context),
+        ),
+      );
+    }
+
+    actions.add(
       _ProfileAction(
         icon: Icons.logout,
         title: 'Çıkış yap',
@@ -105,7 +126,7 @@ class _ProfileContent extends StatelessWidget {
         isDestructive: true,
         onTap: () => _showSignOutDialog(context),
       ),
-    ];
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -137,6 +158,8 @@ class _ProfileContent extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _ProfileStatsRow(user: user),
+            const SizedBox(height: 24),
+            _AppVersionCard(),
             const SizedBox(height: 24),
             _PrivacySettingsCard(user: user),
             const SizedBox(height: 24),
@@ -178,6 +201,262 @@ class _ProfileContent extends StatelessWidget {
             child: const Text('Çıkış yap'),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showLinkAccountSheet(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _LinkAccountSheet(user: user),
+    );
+
+    if (result == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Hesabın başarıyla e-posta ile ilişkilendirildi.'),
+        ),
+      );
+    }
+  }
+}
+
+class _LinkAccountSheet extends StatefulWidget {
+  const _LinkAccountSheet({required this.user});
+
+  final AppUser user;
+
+  @override
+  State<_LinkAccountSheet> createState() => _LinkAccountSheetState();
+}
+
+class _LinkAccountSheetState extends State<_LinkAccountSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController(
+      text: widget.user.username.isNotEmpty
+          ? widget.user.username
+          : widget.user.displayName,
+    );
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await context.read<AuthProvider>().linkAnonymousAccount(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        displayName: _usernameController.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _errorMessage = error.message ?? 'Hesap bağlama işlemi başarısız oldu.';
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _errorMessage = 'Beklenmeyen bir hata oluştu: $error';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, -6),
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.4,
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Hesabı e-postaya taşı',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Mevcut pulse ve istatistiklerin kaybolmadan e-posta ile giriş yapabileceksin.',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  if (_errorMessage != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.error.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _errorMessage!,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                  TextFormField(
+                    controller: _usernameController,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      labelText: 'Kullanıcı adı',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Kullanıcı adı zorunludur';
+                      }
+                      if (value.trim().length < 3) {
+                        return 'En az 3 karakter olmalı';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _emailController,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(labelText: 'E-posta'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'E-posta adresi zorunludur';
+                      }
+                      final emailRegex = RegExp(r'^.+@.+\..+$');
+                      if (!emailRegex.hasMatch(value.trim())) {
+                        return 'Geçerli bir e-posta adresi gir';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
+                    textInputAction: TextInputAction.done,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Şifre',
+                      hintText: 'En az 6 karakter',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Şifre zorunludur';
+                      }
+                      if (value.length < 6) {
+                        return 'Şifre en az 6 karakter olmalıdır';
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (_) => _submit(),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => Navigator.of(context).pop(),
+                          child: const Text('Vazgeç'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _isSubmitting ? null : _submit,
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text('Hesabı taşım'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -716,6 +995,105 @@ class _PrivacyToggleRow extends StatelessWidget {
             ),
           ),
           Switch.adaptive(value: value, onChanged: null),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppVersionCard extends StatefulWidget {
+  const _AppVersionCard();
+
+  @override
+  State<_AppVersionCard> createState() => _AppVersionCardState();
+}
+
+class _AppVersionCardState extends State<_AppVersionCard> {
+  String? _version;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _version = '${packageInfo.version}+${packageInfo.buildNumber}';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _version = '1.0.0+5';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+            spreadRadius: -8,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colorScheme.primary.withValues(alpha: 0.12),
+            ),
+            child: Icon(
+              Icons.info_outline,
+              size: 18,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Uygulama Versiyonu',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              _version ?? '...',
+              style: textTheme.labelSmall?.copyWith(
+                color: colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.w600,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
         ],
       ),
     );

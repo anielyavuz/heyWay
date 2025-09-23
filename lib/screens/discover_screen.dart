@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/venue.dart';
 import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
+import '../utils/distance_utils.dart';
 import 'pulse_composer_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -269,6 +270,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     List<Venue> venues,
     VenueSearchProvider searchProvider,
   ) {
+    final userPosition = _getEffectivePosition(locationProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -293,6 +296,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       final venue = venues[index];
                       return _VenueCard(
                         venue: venue,
+                        userPosition: userPosition,
                         onSharePulse: () => _sharePulse(context, venue),
                       );
                     },
@@ -439,17 +443,29 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 Expanded(
                   child: venues.isEmpty
                       ? const _DiscoverEmptyState()
-                      : ListView.separated(
-                          controller: scrollController,
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                          itemCount: venues.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) {
-                            final venue = venues[index];
-                            return _VenueCard(
-                              venue: venue,
-                              onSharePulse: () => _sharePulse(context, venue),
+                      : Builder(
+                          builder: (context) {
+                            final locationProvider = context
+                                .watch<LocationProvider>();
+                            final userPosition = _getEffectivePosition(
+                              locationProvider,
+                            );
+
+                            return ListView.separated(
+                              controller: scrollController,
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                              itemCount: venues.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) {
+                                final venue = venues[index];
+                                return _VenueCard(
+                                  venue: venue,
+                                  userPosition: userPosition,
+                                  onSharePulse: () =>
+                                      _sharePulse(context, venue),
+                                );
+                              },
                             );
                           },
                         ),
@@ -903,10 +919,15 @@ class _DiscoverEmptyState extends StatelessWidget {
 }
 
 class _VenueCard extends StatelessWidget {
-  const _VenueCard({required this.venue, required this.onSharePulse});
+  const _VenueCard({
+    required this.venue,
+    required this.onSharePulse,
+    this.userPosition,
+  });
 
   final Venue venue;
   final VoidCallback onSharePulse;
+  final Position? userPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -914,6 +935,7 @@ class _VenueCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final emoji = _getVenueEmoji(venue.category);
     final address = _formatVenueAddress(venue);
+    final distanceLabel = formatVenueDistance(userPosition, venue);
 
     return Container(
       decoration: BoxDecoration(
@@ -1013,6 +1035,26 @@ class _VenueCard extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (distanceLabel != null) ...[
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                distanceLabel,
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

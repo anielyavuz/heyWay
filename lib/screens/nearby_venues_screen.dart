@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/venue.dart';
+import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
 import '../utils/debug_logger.dart';
+import '../utils/distance_utils.dart';
 import 'pulse_composer_screen.dart';
 
 class NearbyVenuesScreen extends StatefulWidget {
@@ -267,6 +270,12 @@ class NearbyVenueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = context.watch<LocationProvider>();
+    final position = locationProvider.status == LocationStatus.granted
+        ? locationProvider.position
+        : null;
+    final distanceLabel = formatVenueDistance(position, venue);
+
     return Card(
       elevation: 2,
       child: ListTile(
@@ -303,6 +312,27 @@ class NearbyVenueCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (distanceLabel != null) ...[
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red[600],
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  distanceLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
         trailing: Container(

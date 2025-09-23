@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart' as app_auth;
+import '../providers/location_provider.dart';
 import '../providers/pulse_provider.dart';
 import '../models/pulse.dart';
 import '../models/venue.dart';
 import '../services/firestore_service.dart';
+import '../utils/distance_utils.dart';
 import 'pulse_map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -101,9 +103,15 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (userId != null) {
-        context.read<PulseProvider>().loadUserPulses(userId);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          context.read<PulseProvider>().loadUserPulses(userId);
+        });
       } else {
-        context.read<PulseProvider>().clear();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          context.read<PulseProvider>().clear();
+        });
       }
     }
   }
@@ -1015,6 +1023,10 @@ class PulseTimelineTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final locationProvider = context.watch<LocationProvider>();
+    final position = locationProvider.status == LocationStatus.granted
+        ? locationProvider.position
+        : null;
     final timeLabel = pulse.createdAt != null
         ? formatClockTime(pulse.createdAt!)
         : 'Saat bilinmiyor';
@@ -1090,6 +1102,9 @@ class PulseTimelineTile extends StatelessWidget {
                 final subtitle = venue != null
                     ? formatVenueAddress(venue)
                     : 'Konum detayı getiriliyor…';
+                final distanceLabel = venue != null
+                    ? formatVenueDistance(position, venue)
+                    : null;
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1131,6 +1146,26 @@ class PulseTimelineTile extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (distanceLabel != null) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                distanceLabel,
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -1218,6 +1253,10 @@ class PulseCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final locationProvider = context.watch<LocationProvider>();
+    final position = locationProvider.status == LocationStatus.granted
+        ? locationProvider.position
+        : null;
 
     final moodLabel = pulse.mood.trim().isNotEmpty ? pulse.mood.trim() : 'Mood';
     final createdAt = pulse.createdAt;
@@ -1357,6 +1396,7 @@ class PulseCard extends StatelessWidget {
                       context,
                       title: venue.name,
                       subtitle: formatVenueAddress(venue),
+                      distanceLabel: formatVenueDistance(position, venue),
                       colorScheme: colorScheme,
                       textTheme: textTheme,
                     );
@@ -1367,6 +1407,7 @@ class PulseCard extends StatelessWidget {
                       context,
                       title: 'Mekan yükleniyor',
                       subtitle: 'Konum detayı getiriliyor...',
+                      distanceLabel: null,
                       colorScheme: colorScheme,
                       textTheme: textTheme,
                     );
@@ -1376,6 +1417,7 @@ class PulseCard extends StatelessWidget {
                     context,
                     title: 'Mekan bilinmiyor',
                     subtitle: 'Bu Pulse için konum bulunamadı',
+                    distanceLabel: null,
                     colorScheme: colorScheme,
                     textTheme: textTheme,
                   );
@@ -1456,6 +1498,7 @@ class PulseCard extends StatelessWidget {
     BuildContext context, {
     required String title,
     String? subtitle,
+    String? distanceLabel,
     required ColorScheme colorScheme,
     required TextTheme textTheme,
   }) {
@@ -1508,6 +1551,26 @@ class PulseCard extends StatelessWidget {
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                if (distanceLabel != null) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      distanceLabel,
+                      style: textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ],
