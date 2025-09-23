@@ -5,12 +5,16 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/venue.dart';
 import '../models/pulse.dart';
+import '../models/app_user.dart';
 import '../providers/auth_provider.dart' as app_auth;
 import '../providers/location_provider.dart';
 import '../providers/venue_search_provider.dart';
+import '../providers/friends_provider.dart';
+import '../providers/pulse_provider.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
 import '../utils/distance_utils.dart';
+import '../utils/debug_logger.dart';
 
 class PulseComposerScreen extends StatefulWidget {
   const PulseComposerScreen({super.key, this.venue});
@@ -30,6 +34,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
   String _selectedVisibility = 'public';
   List<File> _selectedImages = [];
   bool _isSubmitting = false;
+  List<AppUser> _selectedCollaborators = [];
 
   final List<String> _moods = [
     '😊', // happy
@@ -224,6 +229,7 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
         likesCount: 0,
         commentCount: 0,
         createdAt: DateTime.now(),
+        collaborators: _selectedCollaborators.map((user) => user.id).toList(),
       );
 
       // Save to Firestore
@@ -289,6 +295,10 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
 
             // Photo Selection
             _buildPhotoSection(),
+            const SizedBox(height: 24),
+
+            // Collaborators Selection
+            _buildCollaboratorsSection(),
             const SizedBox(height: 24),
 
             // Privacy Selection
@@ -622,6 +632,120 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
       ),
     );
   }
+
+  Widget _buildCollaboratorsSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.people_outline,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Friends Pulse',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                if (_selectedCollaborators.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${_selectedCollaborators.length}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Share this pulse with your friends',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Selected collaborators chips
+            if (_selectedCollaborators.isNotEmpty)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _selectedCollaborators.map((user) => Chip(
+                  avatar: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    child: Text(
+                      user.displayName.isNotEmpty 
+                          ? user.displayName[0].toUpperCase()
+                          : user.username.isNotEmpty
+                              ? user.username[0].toUpperCase()
+                              : '?',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  label: Text(
+                    user.displayName.isNotEmpty ? user.displayName : user.username,
+                  ),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedCollaborators.remove(user);
+                    });
+                  },
+                )).toList(),
+              ),
+            
+            const SizedBox(height: 12),
+            
+            // Add collaborators button
+            OutlinedButton.icon(
+              onPressed: _showFriendsSelector,
+              icon: const Icon(Icons.person_add),
+              label: Text(_selectedCollaborators.isEmpty 
+                  ? 'Add Friends' 
+                  : 'Add More Friends'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showFriendsSelector() async {
+    final result = await showModalBottomSheet<List<AppUser>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _FriendsSelectorModal(
+        selectedCollaborators: _selectedCollaborators,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedCollaborators = result;
+      });
+    }
+  }
 }
 
 class VenueSelectionModal extends StatefulWidget {
@@ -723,7 +847,7 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
                                 },
                           ),
                         ).then((venue) {
-                          if (venue != null) {
+                          if (venue != null && context.mounted) {
                             Navigator.pop(context, venue);
                           }
                         });
@@ -853,6 +977,7 @@ class _VenueSelectionModalState extends State<VenueSelectionModal> {
       ),
     );
   }
+
 }
 
 class VenueSearchDelegate extends SearchDelegate<Venue?> {
@@ -1061,5 +1186,253 @@ class VenueSearchDelegate extends SearchDelegate<Venue?> {
         Navigator.of(context, rootNavigator: true).pop();
       }
     }
+  }
+
+}
+
+class _FriendsSelectorModal extends StatefulWidget {
+  const _FriendsSelectorModal({
+    required this.selectedCollaborators,
+  });
+
+  final List<AppUser> selectedCollaborators;
+
+  @override
+  State<_FriendsSelectorModal> createState() => _FriendsSelectorModalState();
+}
+
+class _FriendsSelectorModalState extends State<_FriendsSelectorModal> {
+  late List<AppUser> _tempSelectedCollaborators;
+  String _searchQuery = '';
+  Map<String, AppUser> _friendUsers = {};
+  bool _loadingFriends = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempSelectedCollaborators = List.from(widget.selectedCollaborators);
+    // Defer loading friends to after build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadFriendUsers();
+    });
+  }
+
+  Future<void> _loadFriendUsers() async {
+    final currentUserId = context.read<app_auth.AuthProvider>().user?.uid;
+    if (currentUserId == null) {
+      DebugLogger.error('No current user ID found', 'FriendsSelectorModal');
+      if (mounted) {
+        setState(() => _loadingFriends = false);
+      }
+      return;
+    }
+
+    final friendsProvider = context.read<FriendsProvider>();
+    
+    // Initialize friends provider if not already initialized
+    friendsProvider.initializeForUser(currentUserId);
+    
+    // Wait for friends to load with multiple attempts
+    int attempts = 0;
+    while (attempts < 10 && friendsProvider.friends.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      attempts++;
+    }
+    
+    DebugLogger.info('Friends count after $attempts attempts: ${friendsProvider.friends.length}', 'FriendsSelectorModal');
+    
+    final firestoreService = FirestoreService();
+    final Map<String, AppUser> friendUsers = {};
+    
+    for (final friendship in friendsProvider.friends) {
+      final friendId = friendship.getOtherUserId(currentUserId);
+      DebugLogger.info('Loading friend user: $friendId', 'FriendsSelectorModal');
+      try {
+        final user = await firestoreService.getUser(friendId);
+        if (user != null) {
+          friendUsers[friendId] = user;
+          DebugLogger.info('Loaded friend: ${user.displayName}', 'FriendsSelectorModal');
+        }
+      } catch (e) {
+        DebugLogger.error('Failed to load friend user $friendId: $e', 'FriendsSelectorModal');
+      }
+    }
+    
+    DebugLogger.info('Total friend users loaded: ${friendUsers.length}', 'FriendsSelectorModal');
+    
+    if (mounted) {
+      setState(() {
+        _friendUsers = friendUsers;
+        _loadingFriends = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
+              // Handle
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: Row(
+                  children: [
+                    Text(
+                      'Select Friends',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, _tempSelectedCollaborators),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Search
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search friends...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
+                ),
+              ),
+              
+              // Friends list
+              Expanded(
+                child: _loadingFriends
+                    ? const Center(child: CircularProgressIndicator())
+                    : Consumer<FriendsProvider>(
+                        builder: (context, friendsProvider, child) {
+                          final friends = friendsProvider.friends;
+                          
+                          final filteredFriends = friends.where((friendship) {
+                            final currentUserId = context.read<app_auth.AuthProvider>().user?.uid;
+                            if (currentUserId == null) return false;
+                            
+                            final friendId = friendship.getOtherUserId(currentUserId);
+                            final friendUser = _friendUsers[friendId];
+                            
+                            if (friendUser == null) return false;
+                            
+                            if (_searchQuery.isEmpty) return true;
+                            
+                            return friendUser.displayName.toLowerCase().contains(_searchQuery) ||
+                                   friendUser.username.toLowerCase().contains(_searchQuery);
+                          }).toList();
+
+                          if (filteredFriends.isEmpty) {
+                            return const Center(
+                              child: Text('No friends found'),
+                            );
+                          }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: filteredFriends.length,
+                      itemBuilder: (context, index) {
+                        final friendship = filteredFriends[index];
+                        final currentUserId = context.read<app_auth.AuthProvider>().user?.uid;
+                        final friendId = friendship.getOtherUserId(currentUserId!);
+                        final friendUser = _friendUsers[friendId];
+                        
+                        if (friendUser == null) {
+                          return const SizedBox.shrink();
+                        }
+                        
+                        final isSelected = _tempSelectedCollaborators.any((u) => u.id == friendUser.id);
+                        
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                            child: Text(
+                              friendUser.displayName.isNotEmpty 
+                                  ? friendUser.displayName[0].toUpperCase()
+                                  : friendUser.username.isNotEmpty
+                                      ? friendUser.username[0].toUpperCase()
+                                      : '?',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            friendUser.displayName.isNotEmpty ? friendUser.displayName : friendUser.username,
+                          ),
+                          subtitle: friendUser.displayName.isNotEmpty 
+                              ? Text('@${friendUser.username}')
+                              : null,
+                          trailing: Checkbox(
+                            value: isSelected,
+                            onChanged: (selected) {
+                              setState(() {
+                                if (selected == true) {
+                                  if (!_tempSelectedCollaborators.any((u) => u.id == friendUser.id)) {
+                                    _tempSelectedCollaborators.add(friendUser);
+                                  }
+                                } else {
+                                  _tempSelectedCollaborators.removeWhere((u) => u.id == friendUser.id);
+                                }
+                              });
+                            },
+                          ),
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                _tempSelectedCollaborators.removeWhere((u) => u.id == friendUser.id);
+                              } else {
+                                if (!_tempSelectedCollaborators.any((u) => u.id == friendUser.id)) {
+                                  _tempSelectedCollaborators.add(friendUser);
+                                }
+                              }
+                            });
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

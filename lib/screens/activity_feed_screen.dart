@@ -959,10 +959,10 @@ class _FeedTimelineTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final author = pulseProvider.getUserById(pulse.userId);
     final venue = pulseProvider.getVenueById(pulse.venueId);
-    final displayName = _userDisplayName(
-      author,
-      pulse.userId,
-      isOwnPost: isOwnPost,
+    final displayName = _buildCollaborativeDisplayName(
+      pulse,
+      pulseProvider,
+      FirebaseAuth.instance.currentUser?.uid,
     );
     final initials = _userInitials(author, pulse.userId, isOwnPost: isOwnPost);
     final timeLabel = pulse.createdAt != null
@@ -1050,6 +1050,7 @@ class _FeedTimelineTile extends StatelessWidget {
                     visibility: pulse.visibility,
                     isOwnPost: isOwnPost,
                     color: lineColor,
+                    pulse: pulse,
                   ),
                 ],
               ),
@@ -1293,6 +1294,35 @@ String _userDisplayName(
   return 'User ${userId.length > 6 ? '${userId.substring(0, 6)}…' : userId}';
 }
 
+String _buildCollaborativeDisplayName(
+  Pulse pulse,
+  PulseProvider pulseProvider,
+  String? currentUserId,
+) {
+  if (!pulse.isCollaborative) {
+    final author = pulseProvider.getUserById(pulse.userId);
+    final isOwnPost = currentUserId == pulse.userId;
+    return _userDisplayName(author, pulse.userId, isOwnPost: isOwnPost);
+  }
+
+  // Build collaborative display name
+  final allParticipants = pulse.allParticipants;
+  final displayNames = <String>[];
+  
+  for (final participantId in allParticipants) {
+    final user = pulseProvider.getUserById(participantId);
+    final isOwnPost = currentUserId == participantId;
+    final name = _userDisplayName(user, participantId, isOwnPost: isOwnPost);
+    displayNames.add(name);
+  }
+  
+  if (displayNames.length <= 2) {
+    return displayNames.join(' & ');
+  } else {
+    return '${displayNames.first} & ${displayNames.length - 1} diğer kişi';
+  }
+}
+
 String _userInitials(AppUser? user, String userId, {required bool isOwnPost}) {
   if (isOwnPost) {
     return 'ME';
@@ -1344,20 +1374,28 @@ class _VisibilityBadge extends StatelessWidget {
     required this.visibility,
     required this.isOwnPost,
     required this.color,
+    this.pulse,
   });
 
   final String visibility;
   final bool isOwnPost;
   final Color color;
+  final Pulse? pulse;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final label = isOwnPost
-        ? 'Ben'
-        : visibility == 'friends'
-        ? 'Arkadaşlar'
-        : 'Herkese Açık';
+    
+    String label;
+    if (pulse?.isCollaborative == true) {
+      label = '👥 Collaborative';
+    } else if (isOwnPost) {
+      label = 'Me';
+    } else if (visibility == 'friends') {
+      label = 'Friends';
+    } else {
+      label = 'Public';
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1431,10 +1469,10 @@ class PublicPulseCard extends StatelessWidget {
     final borderColor = isOwnPost
         ? surfaceTint.withValues(alpha: 0.28)
         : colorScheme.outlineVariant.withValues(alpha: 0.28);
-    final displayName = _userDisplayName(
-      author,
-      pulse.userId,
-      isOwnPost: isOwnPost,
+    final displayName = _buildCollaborativeDisplayName(
+      pulse,
+      pulseProvider,
+      FirebaseAuth.instance.currentUser?.uid,
     );
     final timeLabel = pulse.createdAt != null
         ? _formatTime(pulse.createdAt!)

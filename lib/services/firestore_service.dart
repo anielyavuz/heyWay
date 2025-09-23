@@ -327,17 +327,59 @@ class FirestoreService {
   }
 
   Stream<List<Pulse>> getUserPulsesStream(String userId, {int limit = 20}) {
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('pulses')
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
+    // Simplified version to avoid index requirements
+    // Get user's own pulses without orderBy to avoid composite index
+    return _pulsesCollection
+        .where('userId', isEqualTo: userId) // User's own pulses
+        .limit(limit * 2) // Get more to sort client-side
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs
-                .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
-                .toList());
+        .asyncMap((ownSnapshot) async {
+      
+      List<Pulse> allPulses = ownSnapshot.docs
+          .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
+          .toList();
+      
+      // Sort own pulses by creation time client-side
+      allPulses.sort((a, b) => 
+          (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+      
+      try {
+        // Also get collaborative pulses where user is a collaborator (without orderBy to avoid index)
+        final collaborativeSnapshot = await _pulsesCollection
+            .where('collaborators', arrayContains: userId)
+            .get();
+        
+        final collaborativePulses = collaborativeSnapshot.docs
+            .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
+            .toList();
+        
+        // Sort collaborative pulses on client side
+        collaborativePulses.sort((a, b) => 
+            (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+        
+        allPulses.addAll(collaborativePulses);
+        
+        // Sort by creation time and remove duplicates
+        final uniquePulses = <String, Pulse>{};
+        for (final pulse in allPulses) {
+          if (!uniquePulses.containsKey(pulse.id)) {
+            uniquePulses[pulse.id] = pulse;
+          }
+        }
+        
+        final sortedPulses = uniquePulses.values.toList()
+          ..sort((a, b) => (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+        
+        return sortedPulses.take(limit).toList();
+        
+      } catch (e) {
+        DebugLogger.warning(
+          'Failed to load collaborative pulses: $e',
+          'FirestoreService',
+        );
+        return allPulses.take(limit).toList();
+      }
+    });
   }
 
   // Simple method for public pulses without complex indexing
@@ -434,17 +476,93 @@ class FirestoreService {
           }
         }
         
-        // Sort by creation time and limit
-        allPulses.sort((a, b) => (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
-        final result = allPulses.take(limit).toList();
+        // Get user's own posts (all visibility levels)
+        try {
+          DebugLogger.info(
+            '👤 Querying user\'s own posts for userId: $userId',
+            'FirestoreService',
+          );
+          
+          final userSnapshot = await _pulsesCollection
+              .where('userId', isEqualTo: userId)
+              .get();
+          
+          final userPulses = userSnapshot.docs
+              .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
+              .toList();
+          
+          // Sort by creation time on client side
+          userPulses.sort((a, b) => 
+              (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+          
+          allPulses.addAll(userPulses);
+          
+          DebugLogger.info(
+            '✅ Added ${userPulses.length} user\'s own posts to feed',
+            'FirestoreService',
+          );
+        } catch (e) {
+          DebugLogger.error(
+            '❌ User\'s own posts query failed: $e',
+            'FirestoreService',
+          );
+        }
+        
+        // Also get collaborative pulses where current user is a collaborator (no orderBy to avoid index)
+        try {
+          final collaborativeSnapshot = await _pulsesCollection
+              .where('collaborators', arrayContains: userId)
+              .get();
+          
+          final collaborativePulses = collaborativeSnapshot.docs
+              .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
+              .where((pulse) {
+                // Filter collaborative pulses based on visibility and friendship
+                if (pulse.visibility == 'public') return true;
+                if (pulse.visibility == 'private') return false; // Private collaborative pulses only show to participants
+                if (pulse.visibility == 'friends') {
+                  // Show if user is collaborator OR friends with the main author
+                  return pulse.isParticipant(userId) || friendIds.contains(pulse.userId);
+                }
+                return false;
+              })
+              .toList();
+          
+          allPulses.addAll(collaborativePulses);
+          
+          DebugLogger.info(
+            '🤝 Added ${collaborativePulses.length} collaborative pulses to feed',
+            'FirestoreService',
+          );
+          
+        } catch (e) {
+          DebugLogger.warning(
+            'Failed to load collaborative pulses for feed: $e',
+            'FirestoreService',
+          );
+        }
+        
+        // Sort by creation time and remove duplicates
+        final uniquePulses = <String, Pulse>{};
+        for (final pulse in allPulses) {
+          if (!uniquePulses.containsKey(pulse.id)) {
+            uniquePulses[pulse.id] = pulse;
+          }
+        }
+        
+        final sortedPulses = uniquePulses.values.toList()
+          ..sort((a, b) => (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+        
+        final result = sortedPulses.take(limit).toList();
         
         // Debug: Log final feed composition
         final publicCount = result.where((p) => p.visibility == 'public').length;
         final friendsCount = result.where((p) => p.visibility == 'friends').length;
         final privateCount = result.where((p) => p.visibility == 'private').length;
+        final collaborativeCount = result.where((p) => p.isCollaborative).length;
         
         DebugLogger.info(
-          '🎪 Final feed composition: ${result.length} total (${publicCount} public, ${friendsCount} friends, ${privateCount} private)',
+          '🎪 Final feed composition: ${result.length} total ($publicCount public, $friendsCount friends, $privateCount private, $collaborativeCount collaborative)',
           'FirestoreService',
         );
         

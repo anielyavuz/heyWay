@@ -15,6 +15,7 @@ class Pulse {
     required this.likesCount,
     required this.commentCount,
     required this.createdAt,
+    this.collaborators = const [],
   });
 
   factory Pulse.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -34,6 +35,8 @@ class Pulse {
       likesCount: (data['likesCount'] as num?)?.toInt() ?? 0,
       commentCount: (data['commentCount'] as num?)?.toInt() ?? 0,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      collaborators: (data['collaborators'] as List<dynamic>? ?? const <dynamic>[])
+          .cast<String>(),
     );
   }
 
@@ -49,6 +52,7 @@ class Pulse {
       'likesCount': likesCount,
       'commentCount': commentCount,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      'collaborators': collaborators,
     }..removeWhere((key, value) => value == null);
   }
 
@@ -63,6 +67,7 @@ class Pulse {
   final int likesCount;
   final int commentCount;
   final DateTime? createdAt;
+  final List<String> collaborators;
 
   Pulse copyWith({
     String? id,
@@ -74,6 +79,7 @@ class Pulse {
     int? likesCount,
     int? commentCount,
     DateTime? createdAt,
+    List<String>? collaborators,
   }) {
     return Pulse(
       id: id ?? this.id,
@@ -87,6 +93,14 @@ class Pulse {
       likesCount: likesCount ?? this.likesCount,
       commentCount: commentCount ?? this.commentCount,
       createdAt: createdAt ?? this.createdAt,
+      collaborators: collaborators ?? this.collaborators,
     );
   }
+  
+  // Helper methods for collaborative pulses
+  bool get isCollaborative => collaborators.isNotEmpty;
+  
+  List<String> get allParticipants => [userId, ...collaborators];
+  
+  bool isParticipant(String checkUserId) => allParticipants.contains(checkUserId);
 }
