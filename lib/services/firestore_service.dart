@@ -367,6 +367,11 @@ class FirestoreService {
         // Get friend user IDs
         final friendIds = friendships.map((f) => f.getOtherUserId(userId)).toList();
         
+        DebugLogger.info(
+          '🔵 Feed Query Debug: User $userId has ${friendships.length} friendships, ${friendIds.length} friend IDs: $friendIds',
+          'FirestoreService',
+        );
+        
         // Always include all public pulses (not just from friends)
         final publicSnapshot = await _pulsesCollection
             .where('visibility', isEqualTo: 'public')
@@ -386,19 +391,44 @@ class FirestoreService {
           
           if (friendsOnlyIds.isNotEmpty) {
             try {
+              DebugLogger.info(
+                '🔍 Querying friends-only pulses for friend IDs: $friendsOnlyIds',
+                'FirestoreService',
+              );
+              
+              // Remove orderBy to avoid index requirement - we'll sort client-side
               final friendsSnapshot = await _pulsesCollection
                   .where('visibility', isEqualTo: 'friends')
                   .where('userId', whereIn: friendsOnlyIds)
-                  .orderBy('createdAt', descending: true)
-                  .limit(limit ~/ 2)
                   .get();
+              
+              DebugLogger.info(
+                '📊 Friends-only query returned ${friendsSnapshot.docs.length} documents',
+                'FirestoreService',
+              );
               
               final friendsPulses = friendsSnapshot.docs
                   .map((doc) => Pulse.fromDoc(doc as DocumentSnapshot<Map<String, dynamic>>))
                   .toList();
               
-              allPulses.addAll(friendsPulses);
+              // Sort by creation time on client side
+              friendsPulses.sort((a, b) => 
+                  (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
+              
+              // Take limited results
+              final limitedFriendsPulses = friendsPulses.take(limit ~/ 2).toList();
+              
+              allPulses.addAll(limitedFriendsPulses);
+              
+              DebugLogger.info(
+                '🎯 Added ${limitedFriendsPulses.length} friends-only pulses to feed',
+                'FirestoreService',
+              );
             } catch (e) {
+              DebugLogger.error(
+                '❌ Friends-only query failed: $e',
+                'FirestoreService',
+              );
               // If friends-only query fails due to indexing, continue with just public
             }
           }
@@ -407,6 +437,17 @@ class FirestoreService {
         // Sort by creation time and limit
         allPulses.sort((a, b) => (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now()));
         final result = allPulses.take(limit).toList();
+        
+        // Debug: Log final feed composition
+        final publicCount = result.where((p) => p.visibility == 'public').length;
+        final friendsCount = result.where((p) => p.visibility == 'friends').length;
+        final privateCount = result.where((p) => p.visibility == 'private').length;
+        
+        DebugLogger.info(
+          '🎪 Final feed composition: ${result.length} total (${publicCount} public, ${friendsCount} friends, ${privateCount} private)',
+          'FirestoreService',
+        );
+        
         return result;
         
       } catch (e) {

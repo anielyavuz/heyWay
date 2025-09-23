@@ -66,19 +66,24 @@ Google Maps benzeri navigasyon özelliklerine sahip, kullanıcıların cafe, res
 
 #### 6. **Activity Feed**
 - Public pulses görüntüleme
-- Friends-only pulses (arkadaşların paylaşımları)
-- Enhanced feed algorithm
+- Friends-only pulses (arkadaşların paylaşımları) ✅ **YENİ: Çalışıyor**
+- Enhanced feed algorithm with mixed content (public + friends)
 - Compact, modern card design
 - Venue info with simplified address
 - Dark theme compatible design
 - Auto-refresh functionality
+- Real-time feed updates via Firestore listeners
+- Timeline-based daily grouping
+- Location and user-based filtering
 
 #### 7. **Friends System**
 - Friendship request/accept system
 - Friends list management
 - Friend search functionality
 - Friendship status tracking (pending, accepted, blocked)
-- Friends-only content visibility
+- Friends-only content visibility ✅ **YENİ: Düzeltildi**
+- Real-time friendship status updates
+- Composite friendship IDs for efficient queries
 
 #### 8. **UI/UX Design**
 - Ana navigasyon: Home, Discover, Activity Feed, Profile
@@ -110,6 +115,9 @@ Google Maps benzeri navigasyon özelliklerine sahip, kullanıcıların cafe, res
 - Pagination for feed content
 - Image lazy loading and error handling
 - Efficient query structures
+- Client-side sorting to avoid Firestore index requirements ✅ **YENİ**
+- Fallback mechanisms for query failures
+- Background venue and user preloading
 
 #### **Map & Location**
 - Google Maps Flutter integration
@@ -182,6 +190,13 @@ lib/
 ## Geliştirme Notları
 Bu dosya proje geliştirme sürecinde Claude Code asistanı için referans olarak kullanılacaktır.
 
+### 🎯 Son Güncelleme (23 Eylül 2025)
+**Çözülen Problem:** Friends paylaşımları Activity Feed'de görünmüyordu
+- **Neden:** Firestore composite index eksikliği 
+- **Çözüm:** Client-side sorting ile orderBy gereksinimini ortadan kaldırdık
+- **Durum:** ✅ Friends paylaşımları artık başarıyla görünüyor
+- **Dosyalar:** `lib/services/firestore_service.dart:362-430` (getFeedPulsesStream method)
+
 ### 🚀 Sonraki Adımlar (Öncelik Sırasına Göre)
 
 #### **Acil (1-2 Hafta)**
@@ -236,10 +251,11 @@ Bu dosya proje geliştirme sürecinde Claude Code asistanı için referans olara
 ### 🔧 Technical Debt & Improvements
 - Implement proper error boundaries
 - Add comprehensive testing (unit, widget, integration)
-- Optimize Firebase queries with better indexing
+- ~~Optimize Firebase queries with better indexing~~ ✅ **ÇÖZÜLDÜ: Client-side sorting ile**
 - Implement offline-first architecture
 - Add performance monitoring
 - Security audit and improvements
+- Optional: Add Firestore composite indexes for better performance (uzun vadeli)
 
 ### 📊 Performance Targets
 - App startup time: < 3 seconds
