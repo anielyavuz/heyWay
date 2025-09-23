@@ -109,16 +109,25 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
               title: const Text('Take Photo'),
               onTap: () async {
                 Navigator.pop(context);
-                final XFile? image = await picker.pickImage(
-                  source: ImageSource.camera,
-                  maxWidth: 1200,
-                  maxHeight: 1200,
-                  imageQuality: 85,
-                );
-                if (image != null) {
-                  setState(() {
-                    _selectedImages.add(File(image.path));
-                  });
+                try {
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 800,
+                    maxHeight: 800,
+                    imageQuality: 60,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      _selectedImages.add(File(image.path));
+                    });
+                  }
+                } catch (e) {
+                  DebugLogger.error('Failed to pick image from camera: $e', 'PulseComposer');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Camera access denied or failed')),
+                    );
+                  }
                 }
               },
             ),
@@ -127,15 +136,24 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
               title: const Text('Choose from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
-                final List<XFile> images = await picker.pickMultiImage(
-                  maxWidth: 1200,
-                  maxHeight: 1200,
-                  imageQuality: 85,
-                );
-                if (images.isNotEmpty) {
-                  setState(() {
-                    _selectedImages.addAll(images.map((img) => File(img.path)));
-                  });
+                try {
+                  final List<XFile> images = await picker.pickMultiImage(
+                    maxWidth: 800,
+                    maxHeight: 800,
+                    imageQuality: 60,
+                  );
+                  if (images.isNotEmpty) {
+                    setState(() {
+                      _selectedImages.addAll(images.map((img) => File(img.path)));
+                    });
+                  }
+                } catch (e) {
+                  DebugLogger.error('Failed to pick images from gallery: $e', 'PulseComposer');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Gallery access denied or failed')),
+                    );
+                  }
                 }
               },
             ),
@@ -197,12 +215,21 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
       // Upload images to Storage
       List<String> mediaRefs = [];
       if (_selectedImages.isNotEmpty) {
-        final storageService = StorageService();
+        // Check if image sharing is enabled by admin
+        final imageSharingEnabled = await FirestoreService().getImageSharingEnabled();
+        if (!imageSharingEnabled) {
+          DebugLogger.warning('Image sharing is disabled by admin, skipping upload', 'PulseComposer');
+          _selectedImages.clear(); // Clear selected images
+        } else {
+          DebugLogger.info('Starting upload of ${_selectedImages.length} images', 'PulseComposer');
+          final storageService = StorageService();
+          final pulseId = DateTime.now().millisecondsSinceEpoch.toString();
 
         for (int i = 0; i < _selectedImages.length; i++) {
           final file = _selectedImages[i];
-          final pulseId = DateTime.now().millisecondsSinceEpoch.toString();
           final fileName = 'pulse_${pulseId}_$i.jpg';
+
+          DebugLogger.info('Uploading image ${i + 1}/${_selectedImages.length}: $fileName', 'PulseComposer');
 
           final mediaRef = await storageService.uploadPulseMedia(
             file: file,
@@ -212,7 +239,12 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
 
           if (mediaRef != null) {
             mediaRefs.add(mediaRef);
+            DebugLogger.info('Successfully uploaded image: $mediaRef', 'PulseComposer');
+          } else {
+            DebugLogger.error('Failed to upload image $fileName', 'PulseComposer');
           }
+        }
+        DebugLogger.info('Upload completed. Total images uploaded: ${mediaRefs.length}', 'PulseComposer');
         }
       }
 
@@ -474,14 +506,62 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
   }
 
   Widget _buildPhotoSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return StreamBuilder<bool>(
+      stream: FirestoreService().getImageSharingEnabledStream(),
+      builder: (context, snapshot) {
+        final imageSharingEnabled = snapshot.data ?? true;
+        
+        if (!imageSharingEnabled) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Photos',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '📸 Photo sharing is temporarily disabled by admin',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
                 const Text(
                   'Photos',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -540,10 +620,12 @@ class _PulseComposerScreenState extends State<PulseComposerScreen> {
                   },
                 ),
               ),
-            ],
-          ],
-        ),
-      ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

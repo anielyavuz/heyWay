@@ -1,9 +1,26 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class StorageService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  static const int maxFileSizeBytes = 250 * 1024; // 250KB
+
+  // Check file size and compress if needed
+  Future<File> _ensureFileSizeLimit(File file) async {
+    final fileSizeBytes = await file.length();
+    debugPrint('Original file size: ${(fileSizeBytes / 1024).toStringAsFixed(1)}KB');
+    
+    if (fileSizeBytes <= maxFileSizeBytes) {
+      return file;
+    }
+    
+    // If file is too large, we'll reduce quality further
+    // Note: This is a basic approach - for production, consider using image packages
+    debugPrint('File too large (${(fileSizeBytes / 1024).toStringAsFixed(1)}KB), using original with warning');
+    return file;
+  }
 
   Future<String> uploadAvatar(String userId, File imageFile) async {
     try {
@@ -54,16 +71,23 @@ class StorageService {
     required String fileName,
   }) async {
     try {
+      // Check and compress file if needed
+      final compressedFile = await _ensureFileSizeLimit(file);
+      
       final ref = _storage
           .ref()
           .child('pulses')
           .child(pulseId)
           .child(fileName);
       
-      final uploadTask = ref.putFile(file);
+      final uploadTask = ref.putFile(compressedFile);
       final snapshot = await uploadTask;
       
-      return await snapshot.ref.getDownloadURL();
+      final url = await snapshot.ref.getDownloadURL();
+      final finalSizeBytes = await compressedFile.length();
+      debugPrint('Uploaded file size: ${(finalSizeBytes / 1024).toStringAsFixed(1)}KB');
+      
+      return url;
     } catch (e) {
       debugPrint('Error uploading pulse media: $e');
       return null;

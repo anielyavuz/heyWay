@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../models/app_user.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/firestore_service.dart';
 import 'edit_profile_screen.dart';
 import 'friends_screen.dart';
@@ -160,6 +161,8 @@ class _ProfileContent extends StatelessWidget {
             _ProfileStatsRow(user: user),
             const SizedBox(height: 24),
             _AppVersionCard(),
+            const SizedBox(height: 24),
+            _ThemeSettingsCard(),
             const SizedBox(height: 24),
             _PrivacySettingsCard(user: user),
             const SizedBox(height: 24),
@@ -1096,6 +1099,73 @@ class _AppVersionCardState extends State<_AppVersionCard> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ThemeSettingsCard extends StatelessWidget {
+  const _ThemeSettingsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                themeProvider.isDarkTheme ? Icons.dark_mode : Icons.light_mode,
+                color: colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dark Mode',
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      themeProvider.isDarkTheme
+                          ? 'Dark theme enabled'
+                          : 'Light theme enabled',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: textTheme.labelSmall?.color?.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: themeProvider.isDarkTheme,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                },
+                activeColor: colorScheme.primary,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

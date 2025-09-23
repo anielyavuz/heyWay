@@ -27,6 +27,36 @@ class FirestoreService {
   CollectionReference get _pulsesCollection => _firestore.collection('pulses');
   CollectionReference get _friendshipsCollection => _firestore.collection('friendships');
 
+  /// System Configuration
+  Future<bool> getImageSharingEnabled() async {
+    try {
+      final doc = await _firestore.collection('system').doc('adminControl').get();
+      if (doc.exists) {
+        return doc.data()?['images'] ?? true; // Default to true if not set
+      }
+      return true; // Default to enabled if doc doesn't exist
+    } catch (e) {
+      DebugLogger.error('Failed to get image sharing setting: $e', 'FirestoreService');
+      return true; // Default to enabled on error
+    }
+  }
+
+  Stream<bool> getImageSharingEnabledStream() {
+    return _firestore
+        .collection('system')
+        .doc('adminControl')
+        .snapshots()
+        .map<bool>((doc) {
+      if (doc.exists) {
+        return doc.data()?['images'] ?? true;
+      }
+      return true;
+    }).handleError((error) {
+      DebugLogger.error('Failed to stream image sharing setting: $error', 'FirestoreService');
+      return Stream.value(true);
+    });
+  }
+
   /// Users
   Future<void> upsertUser(AppUser user) async {
     await _firestore

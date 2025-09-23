@@ -1,0 +1,157 @@
+# Firebase Storage Security Rules for Pulse App
+
+## 1. Advanced Rules (Firestore Integration - Recommended for Production)
+
+```javascript
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Avatar dosyaları - sadece kendi avatarını değiştirebilir, herkes okuyabilir
+    match /avatars/{userId}.jpg {
+      allow read: if true; // Herkes avatarları görebilir
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Pulse media dosyaları - visibility kontrolü gerekli
+    match /pulses/{pulseId}/{fileName} {
+      allow write: if request.auth != null; // Authenticated users can upload
+      
+      allow read: if request.auth != null && (
+        // Pulse'ın sahibi her zaman okuyabilir
+        isOwner(pulseId) ||
+        
+        // Public pulse'lar herkese açık
+        isPulsePublic(pulseId) ||
+        
+        // Friends pulse'ları sadece arkadaşlara
+        (isPulseFriends(pulseId) && isFriend(pulseId)) ||
+        
+        // Collaborative pulse'larda collaborator ise
+        isCollaborator(pulseId)
+      );
+    }
+    
+    // Helper functions
+    function isOwner(pulseId) {
+      return request.auth.uid == getPulseData(pulseId).userId;
+    }
+    
+    function isPulsePublic(pulseId) {
+      return getPulseData(pulseId).visibility == 'public';
+    }
+    
+    function isPulseFriends(pulseId) {
+      return getPulseData(pulseId).visibility == 'friends';
+    }
+    
+    function isFriend(pulseId) {
+      let pulseUserId = getPulseData(pulseId).userId;
+      // Check if there's an accepted friendship between current user and pulse owner
+      return exists(/databases/$(database)/documents/friendships/$(getFriendshipId(request.auth.uid, pulseUserId))) &&
+             get(/databases/$(database)/documents/friendships/$(getFriendshipId(request.auth.uid, pulseUserId))).data.status == 'accepted';
+    }
+    
+    function isCollaborator(pulseId) {
+      let pulseData = getPulseData(pulseId);
+      return request.auth.uid in pulseData.get('collaborators', []);
+    }
+    
+    function getPulseData(pulseId) {
+      return get(/databases/$(database)/documents/pulses/$(pulseId)).data;
+    }
+    
+    function getFriendshipId(userId1, userId2) {
+      // Friendship ID format: smaller_uid_larger_uid
+      return userId1 < userId2 ? userId1 + '_' + userId2 : userId2 + '_' + userId1;
+    }
+  }
+}
+```
+
+## 2. Simple Rules (App-Level Control - Recommended for Development)
+
+```javascript
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Avatar dosyaları
+    match /avatars/{userId}.jpg {
+      allow read: if true; // Herkes avatarları görebilir
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Pulse media dosyaları - basit kontrol
+    match /pulses/{pulseId}/{fileName} {
+      // Upload: sadece giriş yapmış kullanıcılar
+      allow write: if request.auth != null;
+      
+      // Download: giriş yapmış kullanıcılar (app içinde visibility kontrolü)
+      allow read: if request.auth != null;
+    }
+  }
+}
+```
+
+## Implementation Guide
+
+### Step 1: Apply Rules
+1. Firebase Console > Storage > Rules
+2. Copy and paste one of the rule sets above
+3. Click "Publish"
+
+### Step 2: Choose Rule Set
+- **Development/Testing**: Use Simple Rules (Option 2)
+- **Production**: Use Advanced Rules (Option 1)
+
+### Step 3: Security Considerations
+
+#### Advanced Rules Features:
+- ✅ Firestore integration for visibility checks
+- ✅ Friend relationship validation
+- ✅ Collaborative pulse access control
+- ✅ Owner-based permissions
+- ✅ Granular privacy controls
+
+#### Simple Rules Features:
+- ✅ Basic authentication requirement
+- ✅ Avatar ownership protection
+- ✅ App-level privacy control
+- ⚠️ Relies on client-side filtering
+- ⚠️ Less secure but easier to implement
+
+### Step 4: Migration Path
+1. Start with Simple Rules for initial development
+2. Test functionality thoroughly
+3. Migrate to Advanced Rules for production
+4. Add additional security layers as needed
+
+## Rule Testing Commands
+
+```bash
+# Test avatar access
+firebase emulators:start --only storage,firestore
+
+# Test pulse media access
+# (Use Firebase Rules Playground in console)
+```
+
+## Security Notes
+
+### Advanced Rules Benefits:
+- Server-side validation of all access
+- Cannot be bypassed by malicious clients
+- Enforces privacy at infrastructure level
+- Reduces bandwidth for unauthorized content
+
+### Advanced Rules Limitations:
+- Requires Firestore read operations (cost)
+- More complex to debug and maintain
+- Slower initial load due to permission checks
+
+### Recommendation:
+- Use Simple Rules during development
+- Switch to Advanced Rules before production launch
+- Monitor Firestore read costs with Advanced Rules
+- Consider caching strategies for frequent access patterns
